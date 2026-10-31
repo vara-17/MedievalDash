@@ -2,7 +2,7 @@
 Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes.
 
 ## Técnica
-- Motor: Godot 4.x (completar versión exacta), GDScript tipado
+- Motor: Godot 4.7.2, GDScript tipado
 - Renderer: Compatibility
 - Orientación: horizontal (landscape)
 - Resolución base: 640x360, escalado viewport, filtro de texturas Nearest
