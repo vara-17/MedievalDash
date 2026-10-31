@@ -1,0 +1,10 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Android y macOS
+*.apk
+*.aab
+*.keystore
+*.jks
+.DS_Store
