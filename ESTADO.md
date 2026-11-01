@@ -1,9 +1,10 @@
 # Estado
 ## Hecho
-- Godot configurado y exportando a Samsung
+- Godot 4.7.2 exportando a Samsung
 - Repositorio en GitHub (vara-17/RandomDash)
+- Prototipo: 2 mesas, 1 cliente, ciclo completo (sentarse, pedir, cocinar, servir, comer, cobrar)
 ## Siguiente
-- Configurar resolución y orientación del proyecto
-- Prototipo: 2 mesas, 1 cliente, 1 plato (ciclo completo)
+- Separar el script único en varios (cliente, cocina, sala)
+- Varios clientes a la vez y personaje camarero que se mueve
 ## Bugs conocidos
 - Ninguno
