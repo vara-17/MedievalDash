@@ -6,7 +6,7 @@
     "spawn_interval": 8,
     "queue_patience": 30,
     "table_patience": 25,
-    "stars": [20, 40, 60]
+    "stars": [20, 35, 50]
   },
   {
     "name": "Hora punta",
@@ -15,15 +15,15 @@
     "spawn_interval": 6,
     "queue_patience": 25,
     "table_patience": 20,
-    "stars": [50, 80, 110]
+    "stars": [40, 65, 85]
   },
   {
     "name": "Servicio rápido",
     "time": 90,
     "tables": 3,
-    "spawn_interval": 4,
-    "queue_patience": 20,
-    "table_patience": 16,
-    "stars": [90, 130, 170]
+    "spawn_interval": 5,
+    "queue_patience": 22,
+    "table_patience": 18,
+    "stars": [60, 90, 115]
   }
 ]
