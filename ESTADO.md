@@ -3,9 +3,11 @@
 - Godot 4.7.2 exportando a Samsung
 - Repositorio en GitHub (vara-17/RandomDash)
 - Scripts: table, customer, kitchen, waiter, node_2d (controlador, adjunto al nodo raíz)
-- 3 mesas, cola de espera, elegir mesa, camarero que se mueve, cocina con cola
+- Cola de espera, elegir mesa, camarero, cocina con cola
+- Niveles desde data/levels.json (tiempo, mesas, ritmo, paciencia, estrellas), pantalla de resultado
 ## Siguiente
-- Niveles: objetivo de puntos, tiempo límite, pantalla de resultado
-- Datos en JSON (platos, tiempos, precios)
+- Menú con selector de niveles
+- Guardar progreso (niveles superados y estrellas) en local
+- Arte pixel art (sprites 32x32)
 ## Bugs conocidos
 - Ninguno
