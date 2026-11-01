@@ -2,9 +2,10 @@
 ## Hecho
 - Godot 4.7.2 exportando a Samsung
 - Repositorio en GitHub (vara-17/RandomDash)
-- Prototipo: 2 mesas, 1 cliente, ciclo completo (sentarse, pedir, cocinar, servir, comer, cobrar)
+- Scripts: table, customer, kitchen, waiter, node_2d (controlador, adjunto al nodo raíz)
+- 3 mesas, cola de espera, elegir mesa, camarero que se mueve, cocina con cola
 ## Siguiente
-- Separar el script único en varios (cliente, cocina, sala)
-- Varios clientes a la vez y personaje camarero que se mueve
+- Niveles: objetivo de puntos, tiempo límite, pantalla de resultado
+- Datos en JSON (platos, tiempos, precios)
 ## Bugs conocidos
 - Ninguno

@@ -21,3 +21,4 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
 - No editar .tscn a mano salvo cambios mínimos
 - Sprites de 32x32, paleta de 16 colores (por definir)
 - Nunca subir keystores ni contraseñas al repositorio
+- node_2d.gd es el script del nodo raíz de la escena principal; no adjuntar otro script a ese nodo
