@@ -8,3 +8,13 @@
 *.keystore
 *.jks
 .DS_Store
+
+# Configuración de Firebase (no subir)
+google-services.json
+
+# Compilación del plugin Android
+plugins/google_sign_in_android/build/
+plugins/google_sign_in_android/.gradle/
+
+# Config de Firebase con la clave de API (ver data/firebase.example.json)
+data/firebase.json

@@ -20,6 +20,7 @@ const MENU_COLUMNS := 3
 const MENU_BTN_SIZE := Vector2(160, 90)
 const MENU_GAP := 20.0
 const MENU_ORIGIN := Vector2(60, 110)
+const BTN_LOGIN := Rect2(470, 8, 160, 28)
 
 var save := SaveData.new()
 var levels: Array = []
@@ -34,6 +35,8 @@ var tables: Array[Table] = []
 var queue: Array[Customer] = []
 var customers: Array[Customer] = []
 var selected: Customer = null
+var auth: Auth
+var auth_status: String = ""
 var background: Background
 var kitchen: Kitchen
 var waiter: Waiter
@@ -44,6 +47,11 @@ var score: int = 0
 func _ready() -> void:
 	_load_levels()
 	save.load_from_disk()
+	auth = Auth.new()
+	auth.signed_in.connect(_on_signed_in)
+	auth.signed_out.connect(_on_signed_out)
+	auth.sign_in_failed.connect(_on_sign_in_failed)
+	add_child(auth)
 	background = Background.new()
 	background.visible = false
 	add_child(background)
@@ -257,7 +265,26 @@ func _input(event: InputEvent) -> void:
 	waiter.go_to(p, Callable())
 
 
+func _on_signed_in(_display_name: String) -> void:
+	auth_status = ""
+
+
+func _on_signed_out() -> void:
+	auth_status = ""
+
+
+func _on_sign_in_failed(message: String) -> void:
+	auth_status = message
+
+
 func _handle_menu_tap(p: Vector2) -> void:
+	if BTN_LOGIN.has_point(p):
+		if auth.is_signed_in():
+			auth.sign_out()
+		else:
+			auth_status = ""
+			auth.sign_in()
+		return
 	for i in levels.size():
 		if _level_button_rect(i).has_point(p) and save.is_unlocked(i):
 			_start_level(i)
@@ -317,6 +344,7 @@ func _draw_menu(font: Font) -> void:
 	var dark := Color("2b2d42")
 	draw_string(font, Vector2(0, 60), "RandomDash", HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
 	draw_string(font, Vector2(0, 88), "Elige un nivel", HORIZONTAL_ALIGNMENT_CENTER, 640, 14)
+	_draw_login(font)
 	for i in levels.size():
 		var r := _level_button_rect(i)
 		var unlocked := save.is_unlocked(i)
@@ -334,6 +362,19 @@ func _draw_menu(font: Font) -> void:
 					draw_arc(center, 9.0, 0.0, TAU, 20, dark, 2.0)
 		else:
 			draw_string(font, r.position + Vector2(0, 74), "Bloqueado", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 12, Color.GRAY)
+
+
+func _draw_login(font: Font) -> void:
+	var label := "Entrar con Google"
+	if auth.busy:
+		label = "Conectando..."
+	elif auth.is_signed_in():
+		label = "Salir"
+		draw_string(font, Vector2(BTN_LOGIN.position.x - 300, BTN_LOGIN.position.y + 19), auth.display_name, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
+	draw_rect(BTN_LOGIN, Color("555770"))
+	draw_string(font, BTN_LOGIN.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_LOGIN.size.x, 13)
+	if auth_status != "":
+		draw_string(font, BTN_LOGIN.end + Vector2(-300, 14), auth_status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
 
 
 func _draw_result(font: Font) -> void:
