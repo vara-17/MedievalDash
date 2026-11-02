@@ -10,7 +10,7 @@ signal quit_pressed
 
 const BTN_QUIT := Rect2(290, 6, 60, 28)
 const HUD_SCORE := Rect2(4, 3, 266, 34)
-const HUD_BAR := Rect2(140, 13, 116, 14)
+const HUD_BAR := Rect2(152, 13, 106, 14)
 const HUD_TIME := Rect2(530, 3, 106, 34)
 # Segundos finales en los que el tiempo se pinta en rojo.
 const LOW_TIME := 10
@@ -81,20 +81,20 @@ func _draw_hud() -> void:
 	var thresholds: Array = config["stars"]
 	var top := float(thresholds[thresholds.size() - 1])
 	UiDraw.board(self, HUD_SCORE)
-	UiDraw.text(self, HUD_SCORE.position + Vector2(8, 22), "Nivel %d" % number, 14)
-	UiDraw.sprite(self, SpriteFactory.make("coin"), HUD_SCORE.position + Vector2(80, 17))
-	UiDraw.text(self, HUD_SCORE.position + Vector2(92, 23), str(score), 16, palette["Y"])
+	UiDraw.text(self, HUD_SCORE.position + Vector2(8, 24), "Nivel %d" % number, UiDraw.MEDIUM)
+	UiDraw.sprite(self, SpriteFactory.make("coin"), HUD_SCORE.position + Vector2(92, 17))
+	UiDraw.text(self, HUD_SCORE.position + Vector2(104, 24), str(score), UiDraw.MEDIUM, palette["Y"])
 	UiDraw.progress_bar(self, HUD_BAR, score / top, palette["Y"])
 	for t in thresholds:
 		var x := HUD_BAR.position.x + HUD_BAR.size.x * float(t) / top
 		UiDraw.small_star(self, Vector2(x, HUD_BAR.get_center().y), score >= int(t))
 	if running:
-		UiDraw.wood_button(self, BTN_QUIT, "Menú", 13)
+		UiDraw.wood_button(self, BTN_QUIT, "Menú")
 	UiDraw.board(self, HUD_TIME)
 	UiDraw.sprite(self, SpriteFactory.make("hourglass"), HUD_TIME.position + Vector2(18, 17))
 	var seconds := ceili(time_left)
 	var time_color: Color = palette["R"] if seconds <= LOW_TIME else palette["W"]
-	UiDraw.text(self, HUD_TIME.position + Vector2(32, 24), "%d:%02d" % [floori(seconds / 60.0), seconds % 60], 18, time_color)
+	UiDraw.text(self, HUD_TIME.position + Vector2(32, 24), "%d:%02d" % [floori(seconds / 60.0), seconds % 60], UiDraw.MEDIUM, time_color)
 
 
 # Prepara el nivel (mesas, personajes...) a partir de config.

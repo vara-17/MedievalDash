@@ -47,9 +47,9 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	var palette := SpriteFactory.PALETTE
 	var board := TitleArt.SIGN_RECT
-	var title_pos := Vector2(board.position.x, board.position.y + 47)
-	draw_string(font, title_pos + Vector2(2, 2), GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, 34, palette["K"])
-	draw_string(font, title_pos, GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, 34, palette["Y"])
+	var title_pos := Vector2(board.position.x, board.position.y + 50)
+	draw_string(font, title_pos + Vector2(2, 2), GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, UiDraw.HUGE, palette["K"])
+	draw_string(font, title_pos, GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, UiDraw.HUGE, palette["Y"])
 	var google_label := "Entrar con Google"
 	if busy:
 		google_label = "Conectando..."
@@ -60,4 +60,4 @@ func _draw() -> void:
 	if status != "":
 		var y := BTN_GUEST.end.y + 8
 		draw_rect(Rect2(BTN_GUEST.position.x - 40, y, BTN_GUEST.size.x + 80, 22), Color(0, 0, 0, 0.6))
-		draw_string(font, Vector2(0, y + 16), status, HORIZONTAL_ALIGNMENT_CENTER, 640, 13, Color("e07a5f"))
+		draw_string(font, Vector2(0, y + 15), status, HORIZONTAL_ALIGNMENT_CENTER, 640, UiDraw.SMALL, Color("e07a5f"))

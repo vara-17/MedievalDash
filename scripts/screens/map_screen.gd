@@ -11,11 +11,11 @@ signal account_pressed
 
 const TOP_BAR_HEIGHT := 40.0
 const BTN_ACCOUNT := Rect2(470, 6, 160, 28)
-const CARD_SIZE := Vector2(130, 40)
+const CARD_SIZE := Vector2(130, 46)
 const CARD_OFFSET := Vector2(-65, 30)
 const PLAQUE_SIZE := Vector2(36, 36)
 const PLAQUE_OFFSET := Vector2(26, -46)
-const HIT_RECT := Rect2(-65, -48, 130, 118)
+const HIT_RECT := Rect2(-65, -48, 130, 124)
 const LOCKED_TINT := Color(0.45, 0.45, 0.5)
 const ROAD_STEP := 12.0
 const ROAD_BEND := 50.0
@@ -104,17 +104,17 @@ func _draw_top_bar(width: float) -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(0, 0, width, TOP_BAR_HEIGHT), palette["D"])
 	draw_rect(Rect2(0, TOP_BAR_HEIGHT - 3, width, 3), palette["K"])
-	draw_string(font, Vector2(14, 27), "Mapa del reino", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, palette["Y"])
+	draw_string(font, Vector2(14, 27), "Mapa del reino", HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.MEDIUM, palette["Y"])
 	_draw_account(font)
 
 
 func _draw_account(font: Font) -> void:
 	var who := player_name if player_name != "" else "Invitado"
 	var label := "Cerrar sesión" if player_name != "" else "Iniciar sesión"
-	UiDraw.text(self, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, 13, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_RIGHT, 292)
-	UiDraw.wood_button(self, BTN_ACCOUNT, label, 13)
+	UiDraw.text(self, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, UiDraw.SMALL, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_RIGHT, 292)
+	UiDraw.wood_button(self, BTN_ACCOUNT, label)
 	if sync_status != "":
-		UiDraw.text(self, BTN_ACCOUNT.end + Vector2(-300, 16), sync_status, 11, SpriteFactory.PALETTE["O"], HORIZONTAL_ALIGNMENT_RIGHT, 300)
+		UiDraw.text(self, BTN_ACCOUNT.end + Vector2(-300, 16), sync_status, UiDraw.SMALL, SpriteFactory.PALETTE["O"], HORIZONTAL_ALIGNMENT_RIGHT, 300)
 
 
 # Camino de tierra con una curva suave entre dos escenarios.
@@ -150,7 +150,7 @@ func _draw_venue(index: int) -> void:
 	var card := Rect2(pos + CARD_OFFSET, CARD_SIZE)
 	draw_rect(card, palette["K"])
 	draw_rect(card.grow(-2), palette["L"] * tint)
-	draw_string(font, card.position + Vector2(0, 17), str(venue["name"]), HORIZONTAL_ALIGNMENT_CENTER, card.size.x, 15, palette["K"])
+	draw_string(font, card.position + Vector2(0, 21), str(venue["name"]), HORIZONTAL_ALIGNMENT_CENTER, card.size.x, UiDraw.MEDIUM, palette["K"])
 	var level_count: int = venue["levels"].size()
 	var status := ""
 	if not unlocked:
@@ -158,12 +158,12 @@ func _draw_venue(index: int) -> void:
 	elif level_count == 0:
 		status = "Próximamente"
 	if status != "":
-		draw_string(font, card.position + Vector2(0, 33), status, HORIZONTAL_ALIGNMENT_CENTER, card.size.x, 12, palette["D"])
+		draw_string(font, card.position + Vector2(0, 37), status, HORIZONTAL_ALIGNMENT_CENTER, card.size.x, UiDraw.SMALL, palette["D"])
 		return
-	var center := card.position + Vector2(card.size.x / 2.0 - 16, 28)
+	var center := card.position + Vector2(card.size.x / 2.0 - 16, 33)
 	UiDraw.small_star(self, center, true)
 	var stars := "%d/%d" % [save.total_stars(str(venue["id"])), level_count * 3]
-	draw_string(font, center + Vector2(12, 5), stars, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, palette["K"])
+	draw_string(font, center + Vector2(12, 4), stars, HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.SMALL, palette["K"])
 
 
 func _icon(sprite_name: String) -> Texture2D:

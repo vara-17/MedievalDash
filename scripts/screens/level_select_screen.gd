@@ -50,8 +50,8 @@ func _draw() -> void:
 	var venue_id := str(venue["id"])
 	var levels: Array = venue["levels"]
 	UiDraw.board(self, SIGN)
-	UiDraw.text(self, Vector2(SIGN.position.x, 60), str(venue["name"]), 34, palette["Y"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
-	UiDraw.text(self, Vector2(SIGN.position.x, 88), "%s · Elige un nivel" % venue["goal"], 14, palette["W"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
+	UiDraw.text(self, Vector2(SIGN.position.x, 60), str(venue["name"]), UiDraw.HUGE, palette["Y"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
+	UiDraw.text(self, Vector2(SIGN.position.x, 88), "%s · Elige un nivel" % venue["goal"], UiDraw.SMALL, palette["W"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
 	UiDraw.wood_button(self, BTN_BACK, "‹ Mapa")
 	for i in levels.size():
 		_draw_level_card(i, levels[i], save.is_unlocked(venue_id, i), save.get_stars(venue_id, i))
@@ -62,8 +62,8 @@ func _draw_level_card(index: int, level: Dictionary, unlocked: bool, earned: int
 	var r := _button_rect(index)
 	UiDraw.board(self, r, not unlocked)
 	var text_color: Color = palette["W"] if unlocked else palette["A"]
-	UiDraw.text(self, r.position + Vector2(0, 28), "Nivel %d" % (index + 1), 18, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-	UiDraw.text(self, r.position + Vector2(0, 48), str(level["name"]), 12, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	UiDraw.text(self, r.position + Vector2(0, 28), "Nivel %d" % (index + 1), UiDraw.MEDIUM, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	UiDraw.text(self, r.position + Vector2(0, 48), str(level["name"]), UiDraw.SMALL, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	var center := r.position + Vector2(r.size.x / 2.0, 80)
 	if unlocked:
 		for s in 3:

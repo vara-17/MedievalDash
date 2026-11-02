@@ -9,6 +9,8 @@ enum Phase { LOGIN, MAP, LEVELS, PLAYING, RESULT }
 
 const LOGIN_WALL_ROWS := 6
 const LEVELS_WALL_ROWS := 4
+# Fuente pixel art de todo el juego (licencia OFL en assets/fonts/OFL.txt).
+const FONT_PATH := "res://assets/fonts/PixelifySans.ttf"
 
 # Subclase de Level que se juega según el "gameplay" de cada escenario.
 var gameplays: Dictionary = {"tavern": TavernLevel, "armory": ArmoryLevel}
@@ -31,6 +33,8 @@ var result_screen: ResultScreen
 
 
 func _ready() -> void:
+	# Todas las pantallas dibujan con ThemeDB.fallback_font.
+	ThemeDB.fallback_font = load(FONT_PATH)
 	venues = VenueCatalog.load_all()
 	venue = venues[0]
 	save.load_from_disk()

@@ -31,4 +31,4 @@ func _draw() -> void:
 	draw_rect(Rect2(RECT.position.x + 2, RECT.end.y - 10, RECT.size.x - 4, 8), palette["B"])
 	if tex != null:
 		draw_texture_rect(tex, SpriteFactory.rect_centered(tex, Vector2(0, -6)), false)
-	UiDraw.text(self, Vector2(RECT.position.x - 10, RECT.end.y + 14), item_name, 12, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_CENTER, RECT.size.x + 20)
+	UiDraw.text(self, Vector2(RECT.position.x - 10, RECT.end.y + 14), item_name, UiDraw.SMALL, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_CENTER, RECT.size.x + 20)

@@ -84,7 +84,7 @@ func _draw() -> void:
 		var ratio := patience / max_patience
 		UiDraw.progress_bar(self, PATIENCE_BAR, ratio, _patience_color(ratio))
 	_draw_extra()
-	UiDraw.text(self, HINT_POS, _hint_text(), 11, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_CENTER, HINT_WIDTH)
+	UiDraw.text(self, HINT_POS, _hint_text(), UiDraw.SMALL, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_CENTER, HINT_WIDTH)
 
 
 # Verde con paciencia, amarillo a medias, rojo a punto de irse.

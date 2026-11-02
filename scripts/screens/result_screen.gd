@@ -2,20 +2,20 @@ class_name ResultScreen
 extends Node2D
 
 # Pergamino al terminar un nivel, encima del nivel: monedas, estrellas (que
-# aparecen de una en una) y botones para volver a los niveles, reintentar o
+# aparecen de una en una) y botones para volver a los niveles, repetir o
 # pasar al siguiente.
 
 signal menu_pressed
 signal retry_pressed
 signal next_pressed
 
-const PANEL := Rect2(160, 44, 320, 272)
+const PANEL := Rect2(140, 44, 360, 272)
 const STAR_Y := 166.0
 const STAR_GAP := 56.0
 const STAR_DELAY := 0.35
-const BTN_MENU := Rect2(176, 256, 88, 36)
-const BTN_RETRY := Rect2(276, 256, 88, 36)
-const BTN_NEXT := Rect2(376, 256, 88, 36)
+const BTN_MENU := Rect2(156, 256, 100, 36)
+const BTN_RETRY := Rect2(270, 256, 100, 36)
+const BTN_NEXT := Rect2(384, 256, 100, 36)
 
 var level_name: String = ""
 var score: int = 0
@@ -67,17 +67,17 @@ func _draw() -> void:
 	var title := "¡Nivel superado!" if stars > 0 else "Nivel fallido"
 	var x := PANEL.position.x
 	var w := PANEL.size.x
-	draw_string(font, Vector2(x, 90), title, HORIZONTAL_ALIGNMENT_CENTER, w, 26, palette["B"] if stars > 0 else palette["R"])
-	draw_string(font, Vector2(x, 114), level_name, HORIZONTAL_ALIGNMENT_CENTER, w, 14, palette["D"])
+	draw_string(font, Vector2(x, 90), title, HORIZONTAL_ALIGNMENT_CENTER, w, UiDraw.LARGE, palette["B"] if stars > 0 else palette["R"])
+	draw_string(font, Vector2(x, 120), level_name, HORIZONTAL_ALIGNMENT_CENTER, w, UiDraw.MEDIUM, palette["D"])
 	for i in 3:
 		UiDraw.star(self, Vector2(PANEL.get_center().x + (i - 1) * STAR_GAP, STAR_Y), i < shown_stars)
 	var coin := SpriteFactory.make("coin")
 	var score_text := str(score)
-	var text_w := font.get_string_size(score_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
+	var text_w := font.get_string_size(score_text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.LARGE).x
 	var start := PANEL.get_center().x - (text_w + 24) / 2.0
 	UiDraw.sprite(self, coin, Vector2(start + 8, 213))
-	draw_string(font, Vector2(start + 24, 221), score_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, palette["K"])
+	draw_string(font, Vector2(start + 24, 224), score_text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.LARGE, palette["K"])
 	UiDraw.wood_button(self, BTN_MENU, "Menú")
-	UiDraw.wood_button(self, BTN_RETRY, "Reintentar")
+	UiDraw.wood_button(self, BTN_RETRY, "Repetir")
 	if has_next:
 		UiDraw.wood_button(self, BTN_NEXT, "Siguiente")

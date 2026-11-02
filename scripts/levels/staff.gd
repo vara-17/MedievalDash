@@ -71,7 +71,7 @@ func _draw_marker(at: Vector2, number: int) -> void:
 	var palette := SpriteFactory.PALETTE
 	draw_circle(at, MARKER_RADIUS + 1.0, palette["K"])
 	draw_circle(at, MARKER_RADIUS, palette["Y"])
-	draw_string(ThemeDB.fallback_font, at + Vector2(-MARKER_RADIUS, 4), str(number), HORIZONTAL_ALIGNMENT_CENTER, MARKER_RADIUS * 2.0, 11, palette["K"])
+	draw_string(ThemeDB.fallback_font, at + Vector2(-MARKER_RADIUS, 4), str(number), HORIZONTAL_ALIGNMENT_CENTER, MARKER_RADIUS * 2.0, UiDraw.TINY, palette["K"])
 
 
 # Suelta lo que lleve encima.

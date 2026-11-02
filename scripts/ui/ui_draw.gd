@@ -5,6 +5,13 @@ extends RefCounted
 # del nodo que los pinta ("canvas").
 
 const TEXT_SHADOW := Vector2(1, 1)
+# Tamaños de letra. La fuente pixel art es nítida en múltiplos de 20; 10 solo
+# vale para un número suelto y 15 se usa para textos pequeños, que se leen mejor.
+const TINY := 10
+const SMALL := 15
+const MEDIUM := 20
+const LARGE := 30
+const HUGE := 40
 
 # Texturas con tinte; se guardan aquí porque si se crean dentro de _draw se
 # liberan antes de pintarse.
@@ -30,12 +37,12 @@ static func text(canvas: CanvasItem, pos: Vector2, value: String, size: int, col
 	canvas.draw_string(font, pos, value, align, width, size, color)
 
 
-static func wood_button(canvas: CanvasItem, r: Rect2, label: String, font_size: int = 15) -> void:
+static func wood_button(canvas: CanvasItem, r: Rect2, label: String, font_size: int = MEDIUM) -> void:
 	var palette := SpriteFactory.PALETTE
 	canvas.draw_rect(r, palette["K"])
 	canvas.draw_rect(r.grow(-2), palette["L"])
 	canvas.draw_rect(Rect2(r.position + Vector2(2, r.size.y - 6), Vector2(r.size.x - 4, 4)), palette["B"])
-	canvas.draw_string(ThemeDB.fallback_font, r.position + Vector2(0, r.size.y / 2.0 + 5), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, font_size, palette["K"])
+	canvas.draw_string(ThemeDB.fallback_font, r.position + Vector2(0, r.size.y / 2.0 + font_size * 0.35), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, font_size, palette["K"])
 
 
 # Tablón de madera oscura con borde claro arriba (marcadores, tarjetas).

@@ -18,7 +18,7 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
   - ui/ piezas de interfaz comunes (UiDraw)
   - screens/ una por pantalla: login, mapa, niveles, resultado
   - levels/ jugabilidad: level.gd es la base (tiempo, puntos, marcador); service_level.gd, service_customer.gd, spot.gd y staff.gd son lo común de atender clientes (cola, sitios, quien atiende); una subcarpeta por tipo de escenario (tavern/, armory/)
-- assets/sprites, assets/audio
+- assets/sprites, assets/audio, assets/fonts (Pixelify Sans, licencia OFL en OFL.txt)
 - data/ escenarios y niveles (venues.json) y config en JSON
 - docs/ diseño (DISENO.md) y estado del proyecto (ESTADO.md)
 - tools/ scripts que generan assets (arte procedural)
@@ -33,3 +33,4 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
 - scripts/node_2d.gd es el script del nodo raíz de la escena principal; no adjuntar otro script a ese nodo
 - El progreso se guarda en user://save.json (clase SaveData); es el dato que más adelante se sincronizará con la cuenta de Google
 - Un tipo de escenario nuevo = subclase de ServiceLevel (o de Level si no es de atender clientes) en scripts/levels/<tipo>/, registrada en gameplays de node_2d.gd y con "gameplay" en data/venues.json
+- Textos: fuente Pixelify Sans (se asigna a ThemeDB.fallback_font al arrancar); usar solo los tamaños de UiDraw (TINY, SMALL, MEDIUM, LARGE, HUGE), porque otros se ven borrosos
