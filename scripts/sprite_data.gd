@@ -141,7 +141,71 @@ static func rows(sprite_name: String) -> Array:
 			]
 		"banner":
 			return _banner()
+		"house":
+			return _house()
+		"tree":
+			return [
+				"................",
+				".....KKKKK......",
+				"...KKGGGGGKK....",
+				"..KGGNNGGGGGK...",
+				".KGNNNGGGGNGGK..",
+				".KGNNGGGGNNNGK..",
+				".KGGGGGNGGNGGK..",
+				".KGGNGGGGGGGGK..",
+				"..KGGGGGNGGGK...",
+				"...KKGGGGGKK....",
+				".....KKBBKK.....",
+				"......KBBK......",
+				"......KBBK......",
+				"......KBBK......",
+				".....KBBBBK.....",
+				"................",
+			]
+		"sword":
+			return [
+				".......KK.......",
+				"......KZZK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"......KZAK......",
+				"...KKKKKKKKKK...",
+				"...KYYYYYYYYK...",
+				"...KKKKBBKKKK...",
+				"......KBBK......",
+				"......KYYK......",
+				"......KKKK......",
+			]
 	return []
+
+
+# Casa de 24x22 para el mapa: tejado de color X, paredes encaladas con vigas,
+# dos ventanas con luz y puerta.
+static func _house() -> Array:
+	var rows: Array = []
+	for i in 9:
+		var pad := ".".repeat(11 - i)
+		rows.append(pad + "K" + "X".repeat(i * 2) + "K" + pad)
+	rows.append_array([
+		"..KKKKKKKKKKKKKKKKKKKK..",
+		"...KWWWWWWWWWWWWWWWWK...",
+		"...KBWWWWWWWWWWWWWWBK...",
+		"...KBWKKKKWWWWKKKKWBK...",
+		"...KBWKUYKWWWWKUUKWBK...",
+		"...KBWKUUKWWWWKYUKWBK...",
+		"...KBWKKKKWWWWKKKKWBK...",
+		"...KBBBBBBBBBBBBBBBBK...",
+		"...KBWWWWKKKKKKWWWWBK...",
+		"...KBWWWWKBBBBKWWWWBK...",
+		"...KBWWWWKBBYBKWWWWBK...",
+		"..KKKKKKKKKKKKKKKKKKKK..",
+	])
+	return rows
 
 
 # Estandarte de 16x24 colgado de una barra, con un rombo dorado y cola de golondrina.

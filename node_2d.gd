@@ -1,12 +1,16 @@
 extends Node2D
 
-enum Phase { LOGIN, MENU, PLAYING, RESULT }
+enum Phase { LOGIN, MAP, LEVELS, PLAYING, RESULT }
 
-const LEVELS_PATH := "res://data/levels.json"
-const DEFAULT_LEVEL := {
-	"name": "Nivel de prueba", "time": 60, "tables": 3,
-	"spawn_interval": 6, "queue_patience": 25, "table_patience": 20,
-	"stars": [20, 40, 60],
+const VENUES_PATH := "res://data/venues.json"
+const DEFAULT_VENUE := {
+	"id": "taberna", "name": "Taberna", "goal": "", "icon": "mug", "roof": "R",
+	"map_pos": [320, 200], "requires": "",
+	"levels": [{
+		"name": "Nivel de prueba", "time": 60, "tables": 3,
+		"spawn_interval": 6, "queue_patience": 25, "table_patience": 20,
+		"stars": [20, 40, 60],
+	}],
 }
 const DOOR_POS := Vector2(10, 180)
 const QUEUE_SLOTS := [Vector2(60, 110), Vector2(60, 180), Vector2(60, 250)]
@@ -20,13 +24,17 @@ const MENU_COLUMNS := 3
 const MENU_BTN_SIZE := Vector2(160, 90)
 const MENU_GAP := 20.0
 const MENU_ORIGIN := Vector2(60, 110)
-const BTN_ACCOUNT := Rect2(470, 8, 160, 28)
+const BTN_ACCOUNT := Rect2(470, 6, 160, 28)
+const BTN_BACK := Rect2(8, 8, 90, 30)
 const BTN_GOOGLE := Rect2(210, 222, 220, 40)
 const BTN_GUEST := Rect2(210, 274, 220, 40)
 const LOGIN_WALL_ROWS := 6
 const GAME_TITLE := "Medieval Dash"
 
 var save := SaveData.new()
+var venues: Array = []
+var venue_index: int = 0
+var venue: Dictionary = {}
 var levels: Array = []
 var level_index: int = 0
 var level: Dictionary = {}
@@ -46,6 +54,7 @@ var sync_status: String = ""
 var loading_account: bool = false
 var background: Background
 var title_art: TitleArt
+var map_screen: MapScreen
 var kitchen: Kitchen
 var waiter: Waiter
 var spawn_timer: float = 1.0
@@ -53,7 +62,7 @@ var score: int = 0
 
 
 func _ready() -> void:
-	_load_levels()
+	_load_venues()
 	save.load_from_disk()
 	cloud = CloudSave.new()
 	cloud.synced.connect(_on_synced)
@@ -63,6 +72,9 @@ func _ready() -> void:
 	add_child(background)
 	title_art = TitleArt.new()
 	add_child(title_art)
+	map_screen = MapScreen.new()
+	map_screen.venue_pressed.connect(_open_venue)
+	add_child(map_screen)
 	kitchen = Kitchen.new()
 	kitchen.position = Vector2(570, 180)
 	add_child(kitchen)
@@ -80,22 +92,36 @@ func _ready() -> void:
 # Cambia de pantalla y muestra solo los nodos que le tocan.
 func _set_phase(new_phase: int) -> void:
 	phase = new_phase
-	background.visible = phase != Phase.MENU
+	background.visible = phase != Phase.LEVELS and phase != Phase.MAP
 	background.wall_rows = LOGIN_WALL_ROWS if phase == Phase.LOGIN else 1
 	title_art.visible = phase == Phase.LOGIN
+	map_screen.visible = phase == Phase.MAP
+	if phase == Phase.MAP:
+		map_screen.refresh(venues, save)
 	kitchen.visible = phase == Phase.PLAYING
 	waiter.visible = phase == Phase.PLAYING
 
 
-func _load_levels() -> void:
-	var file := FileAccess.open(LEVELS_PATH, FileAccess.READ)
+func _load_venues() -> void:
+	var file := FileAccess.open(VENUES_PATH, FileAccess.READ)
 	if file != null:
 		var data = JSON.parse_string(file.get_as_text())
 		if data is Array and not data.is_empty():
-			levels = data
+			venues = data
+			_open_venue(0, false)
 			return
-	push_error("No se pudo leer %s, usando nivel por defecto" % LEVELS_PATH)
-	levels = [DEFAULT_LEVEL]
+	push_error("No se pudo leer %s, usando escenario por defecto" % VENUES_PATH)
+	venues = [DEFAULT_VENUE]
+	_open_venue(0, false)
+
+
+# Elige el escenario cuyos niveles se van a jugar y, si show, abre su selector.
+func _open_venue(index: int, show: bool = true) -> void:
+	venue_index = index
+	venue = venues[index]
+	levels = venue["levels"]
+	if show:
+		_set_phase(Phase.LEVELS)
 
 
 func _start_level(index: int) -> void:
@@ -128,7 +154,7 @@ func _clear_level() -> void:
 
 func _go_to_menu() -> void:
 	_clear_level()
-	_set_phase(Phase.MENU)
+	_set_phase(Phase.LEVELS)
 
 
 func _build_tables(count: int) -> void:
@@ -147,7 +173,7 @@ func _finish_level() -> void:
 		if score >= int(t):
 			stars_earned += 1
 	passed = stars_earned > 0
-	save.record(level_index, stars_earned)
+	save.record(str(venue["id"]), level_index, stars_earned)
 	_sync()
 	_clear_level()
 	_set_phase(Phase.RESULT)
@@ -252,7 +278,10 @@ func _input(event: InputEvent) -> void:
 		Phase.LOGIN:
 			_handle_login_tap(p)
 			return
-		Phase.MENU:
+		Phase.MAP:
+			_handle_map_tap(p)
+			return
+		Phase.LEVELS:
 			_handle_menu_tap(p)
 			return
 		Phase.RESULT:
@@ -299,7 +328,7 @@ func _on_signed_out() -> void:
 	loading_account = false
 	save = SaveData.new()
 	save.load_from_disk()
-	if phase == Phase.MENU:
+	if phase == Phase.MAP or phase == Phase.LEVELS:
 		_set_phase(Phase.LOGIN)
 
 
@@ -311,7 +340,7 @@ func _use_account_save(uid: String) -> void:
 	var guest := SaveData.new()
 	guest.load_from_disk()
 	if guest.has_progress():
-		account.merge(guest.best_stars)
+		account.merge(guest.progress)
 		guest.delete_from_disk()
 	save = account
 
@@ -326,13 +355,15 @@ func _sync() -> void:
 	if token == "":
 		_on_sync_failed("Sin conexión")
 		return
-	cloud.sync(uid, token, save.best_stars.duplicate())
+	cloud.sync(uid, token, save.progress.duplicate(true))
 
 
-func _on_synced(uid: String, stars: Array) -> void:
+func _on_synced(uid: String, progress: Dictionary) -> void:
 	if uid == auth.uid:
-		save.merge(stars)
+		save.merge(progress)
 		sync_status = ""
+		if phase == Phase.MAP:
+			map_screen.refresh(venues, save)
 		_finish_loading_account()
 
 
@@ -345,7 +376,7 @@ func _finish_loading_account() -> void:
 	if loading_account:
 		loading_account = false
 		if phase == Phase.LOGIN:
-			_set_phase(Phase.MENU)
+			_set_phase(Phase.MAP)
 
 
 func _on_sign_in_failed(message: String) -> void:
@@ -360,24 +391,31 @@ func _handle_login_tap(p: Vector2) -> void:
 		auth.sign_in()
 	elif BTN_GUEST.has_point(p):
 		auth_status = ""
-		_set_phase(Phase.MENU)
+		_set_phase(Phase.MAP)
 
 
-func _handle_menu_tap(p: Vector2) -> void:
+func _handle_map_tap(p: Vector2) -> void:
 	if BTN_ACCOUNT.has_point(p):
 		if auth.is_signed_in():
 			auth.sign_out()
 		_set_phase(Phase.LOGIN)
 		return
+	map_screen.handle_tap(p)
+
+
+func _handle_menu_tap(p: Vector2) -> void:
+	if BTN_BACK.has_point(p):
+		_set_phase(Phase.MAP)
+		return
 	for i in levels.size():
-		if _level_button_rect(i).has_point(p) and save.is_unlocked(i):
+		if _level_button_rect(i).has_point(p) and save.is_unlocked(str(venue["id"]), i):
 			_start_level(i)
 			return
 
 
 func _handle_result_tap(p: Vector2) -> void:
 	if BTN_MENU.has_point(p):
-		_set_phase(Phase.MENU)
+		_set_phase(Phase.LEVELS)
 	elif BTN_RETRY.has_point(p):
 		_start_level(level_index)
 	elif _has_next() and BTN_NEXT.has_point(p):
@@ -407,7 +445,10 @@ func _draw() -> void:
 	if phase == Phase.LOGIN:
 		_draw_login_screen(font)
 		return
-	if phase == Phase.MENU:
+	if phase == Phase.MAP:
+		_draw_account(font)
+		return
+	if phase == Phase.LEVELS:
 		draw_rect(get_viewport_rect(), Color("2b2d42"))
 		_draw_menu(font)
 		return
@@ -428,18 +469,19 @@ func _draw() -> void:
 
 func _draw_menu(font: Font) -> void:
 	var dark := Color("2b2d42")
-	draw_string(font, Vector2(0, 60), GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
-	draw_string(font, Vector2(0, 88), "Elige un nivel", HORIZONTAL_ALIGNMENT_CENTER, 640, 14)
-	_draw_account(font)
+	var venue_id := str(venue["id"])
+	draw_string(font, Vector2(0, 60), str(venue["name"]), HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
+	draw_string(font, Vector2(0, 88), "%s · Elige un nivel" % venue["goal"], HORIZONTAL_ALIGNMENT_CENTER, 640, 14)
+	_draw_wood_button(font, BTN_BACK, "‹ Mapa")
 	for i in levels.size():
 		var r := _level_button_rect(i)
-		var unlocked := save.is_unlocked(i)
+		var unlocked := save.is_unlocked(venue_id, i)
 		var text_color := dark if unlocked else Color.GRAY
 		draw_rect(r, Color("81b29a") if unlocked else Color("555770"))
 		draw_string(font, r.position + Vector2(0, 26), "Nivel %d" % (i + 1), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18, text_color)
 		draw_string(font, r.position + Vector2(0, 46), str(levels[i]["name"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 12, text_color)
 		if unlocked:
-			var earned := save.get_stars(i)
+			var earned := save.get_stars(venue_id, i)
 			for s in 3:
 				var center := r.position + Vector2(r.size.x / 2.0 - 28.0 + s * 28.0, 70)
 				if s < earned:

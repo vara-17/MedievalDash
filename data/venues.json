@@ -1,0 +1,50 @@
+[
+  {
+    "id": "taberna",
+    "name": "Taberna",
+    "goal": "Sirve bebida y comida",
+    "icon": "mug",
+    "roof": "R",
+    "map_pos": [190, 210],
+    "requires": "",
+    "levels": [
+      {
+        "name": "Primer día",
+        "time": 60,
+        "tables": 2,
+        "spawn_interval": 8,
+        "queue_patience": 30,
+        "table_patience": 25,
+        "stars": [20, 35, 50]
+      },
+      {
+        "name": "Hora punta",
+        "time": 75,
+        "tables": 3,
+        "spawn_interval": 6,
+        "queue_patience": 25,
+        "table_patience": 20,
+        "stars": [40, 65, 85]
+      },
+      {
+        "name": "Servicio rápido",
+        "time": 90,
+        "tables": 3,
+        "spawn_interval": 5,
+        "queue_patience": 22,
+        "table_patience": 18,
+        "stars": [60, 90, 115]
+      }
+    ]
+  },
+  {
+    "id": "armeria",
+    "name": "Armería",
+    "goal": "Vende y repara armas y armaduras",
+    "icon": "sword",
+    "roof": "U",
+    "map_pos": [450, 150],
+    "requires": "taberna",
+    "levels": []
+  }
+]
