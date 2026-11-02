@@ -9,8 +9,8 @@ extends Node
 signal signed_in(display_name: String)
 signal signed_out
 signal sign_in_failed(message: String)
+signal _refresh_done
 
-const CONFIG_PATH := "res://data/firebase.json"
 const SESSION_PATH := "user://auth.json"
 const PLUGIN_NAME := "GoogleSignIn"
 const SIGN_IN_URL := "https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=%s"
@@ -23,13 +23,16 @@ var email: String = ""
 var display_name: String = ""
 var refresh_token: String = ""
 var id_token: String = ""
+var id_token_expires_at: float = 0.0
 var busy: bool = false
 
 var _plugin: Object = null
+var _refreshing: bool = false
 
 
 func _ready() -> void:
-	_load_config()
+	api_key = FirebaseConfig.get_value("api_key")
+	web_client_id = FirebaseConfig.get_value("web_client_id")
 	if Engine.has_singleton(PLUGIN_NAME):
 		_plugin = Engine.get_singleton(PLUGIN_NAME)
 		_plugin.connect("sign_in_succeeded", _on_google_token)
@@ -48,7 +51,7 @@ func sign_in() -> void:
 		sign_in_failed.emit("Solo disponible en Android")
 		return
 	if api_key == "" or web_client_id == "":
-		sign_in_failed.emit("Falta %s" % CONFIG_PATH)
+		sign_in_failed.emit("Falta %s" % FirebaseConfig.PATH)
 		return
 	busy = true
 	_plugin.call("signIn", web_client_id)
@@ -62,15 +65,14 @@ func sign_out() -> void:
 	signed_out.emit()
 
 
-func _load_config() -> void:
-	var file := FileAccess.open(CONFIG_PATH, FileAccess.READ)
-	if file == null:
-		push_warning("No existe %s; copia data/firebase.example.json y rellénalo" % CONFIG_PATH)
-		return
-	var data = JSON.parse_string(file.get_as_text())
-	if data is Dictionary:
-		api_key = str(data.get("api_key", ""))
-		web_client_id = str(data.get("web_client_id", ""))
+# ID token de Firebase para llamar a Firestore. Caduca en 1 hora; si hace falta
+# se renueva con el refresh token. Devuelve "" si no hay sesión o no hay conexión.
+func get_valid_id_token() -> String:
+	if not is_signed_in():
+		return ""
+	if id_token == "" or Time.get_unix_time_from_system() >= id_token_expires_at:
+		await _refresh()
+	return id_token
 
 
 func _on_google_token(google_id_token: String) -> void:
@@ -83,14 +85,14 @@ func _on_google_token(google_id_token: String) -> void:
 	var res := await _post(SIGN_IN_URL % api_key, JSON.stringify(body), "application/json")
 	busy = false
 	if res["code"] != 200:
-		sign_in_failed.emit(_error_message(res))
+		sign_in_failed.emit(HttpJson.error_message(res))
 		return
 	var data: Dictionary = res["data"]
 	uid = str(data.get("localId", ""))
 	email = str(data.get("email", ""))
 	display_name = str(data.get("displayName", email))
 	refresh_token = str(data.get("refreshToken", ""))
-	id_token = str(data.get("idToken", ""))
+	_set_id_token(str(data.get("idToken", "")), data.get("expiresIn", 0))
 	_save_session()
 	signed_in.emit(display_name)
 
@@ -117,16 +119,37 @@ func _restore_session() -> void:
 	display_name = str(data.get("display_name", ""))
 	refresh_token = str(data["refresh_token"])
 	signed_in.emit(display_name)
-	if api_key == "":
+	await _refresh()
+
+
+# Pide un ID token nuevo. Si Firebase rechaza la sesión, se cierra.
+# Si ya hay una renovación en curso, espera a que termine en vez de lanzar otra.
+func _refresh() -> void:
+	if _refreshing:
+		await _refresh_done
 		return
+	if api_key == "" or refresh_token == "":
+		return
+	_refreshing = true
+	var for_uid := uid
 	var body := "grant_type=refresh_token&refresh_token=%s" % refresh_token.uri_encode()
 	var res := await _post(REFRESH_URL % api_key, body, "application/x-www-form-urlencoded")
-	if res["code"] == 200:
+	_refreshing = false
+	if uid != for_uid:
+		pass  # Se cerró o cambió la sesión mientras tanto: se descarta la respuesta.
+	elif res["code"] == 200:
 		refresh_token = str(res["data"].get("refresh_token", refresh_token))
-		id_token = str(res["data"].get("id_token", ""))
+		_set_id_token(str(res["data"].get("id_token", "")), res["data"].get("expires_in", 0))
 		_save_session()
 	elif res["code"] >= 400 and res["code"] < 500:
 		sign_out()
+	_refresh_done.emit()
+
+
+# Guarda el token con un minuto de margen antes de que caduque.
+func _set_id_token(token: String, expires_in: Variant) -> void:
+	id_token = token
+	id_token_expires_at = Time.get_unix_time_from_system() + float(expires_in) - 60.0
 
 
 func _save_session() -> void:
@@ -146,27 +169,9 @@ func _clear() -> void:
 	display_name = ""
 	refresh_token = ""
 	id_token = ""
+	id_token_expires_at = 0.0
 	busy = false
 
 
-# Devuelve {"code": código HTTP (0 si no hubo conexión), "data": respuesta JSON}.
 func _post(url: String, body: String, content_type: String) -> Dictionary:
-	var http := HTTPRequest.new()
-	add_child(http)
-	var err := http.request(url, ["Content-Type: " + content_type], HTTPClient.METHOD_POST, body)
-	if err != OK:
-		http.queue_free()
-		return {"code": 0, "data": {}}
-	var result: Array = await http.request_completed
-	http.queue_free()
-	var data = JSON.parse_string((result[3] as PackedByteArray).get_string_from_utf8())
-	return {"code": int(result[1]), "data": data if data is Dictionary else {}}
-
-
-func _error_message(res: Dictionary) -> String:
-	if res["code"] == 0:
-		return "Sin conexión"
-	var error = res["data"].get("error", {})
-	if error is Dictionary and error.has("message"):
-		return str(error["message"])
-	return "Error %d" % res["code"]
+	return await HttpJson.request(self, url, HTTPClient.METHOD_POST, PackedStringArray(["Content-Type: " + content_type]), body)

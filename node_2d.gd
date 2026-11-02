@@ -37,6 +37,8 @@ var customers: Array[Customer] = []
 var selected: Customer = null
 var auth: Auth
 var auth_status: String = ""
+var cloud: CloudSave
+var sync_status: String = ""
 var background: Background
 var kitchen: Kitchen
 var waiter: Waiter
@@ -47,6 +49,10 @@ var score: int = 0
 func _ready() -> void:
 	_load_levels()
 	save.load_from_disk()
+	cloud = CloudSave.new()
+	cloud.synced.connect(_on_synced)
+	cloud.sync_failed.connect(_on_sync_failed)
+	add_child(cloud)
 	auth = Auth.new()
 	auth.signed_in.connect(_on_signed_in)
 	auth.signed_out.connect(_on_signed_out)
@@ -132,6 +138,7 @@ func _finish_level() -> void:
 			stars_earned += 1
 	passed = stars_earned > 0
 	save.record(level_index, stars_earned)
+	_sync()
 	_clear_level()
 	kitchen.visible = false
 	waiter.visible = false
@@ -267,10 +274,48 @@ func _input(event: InputEvent) -> void:
 
 func _on_signed_in(_display_name: String) -> void:
 	auth_status = ""
+	_use_account_save(auth.uid)
+	_sync()
 
 
 func _on_signed_out() -> void:
 	auth_status = ""
+	sync_status = ""
+	save = SaveData.new()
+	save.load_from_disk()
+
+
+# Pasa al progreso de la cuenta. Si hay progreso de invitado, se suma a esta
+# cuenta y se borra, para que no acabe también en otra cuenta.
+func _use_account_save(uid: String) -> void:
+	var account := SaveData.for_account(uid)
+	account.load_from_disk()
+	var guest := SaveData.new()
+	guest.load_from_disk()
+	if guest.has_progress():
+		account.merge(guest.best_stars)
+		guest.delete_from_disk()
+	save = account
+
+
+func _sync() -> void:
+	if not auth.is_signed_in():
+		return
+	var uid := auth.uid
+	var token: String = await auth.get_valid_id_token()
+	if token == "" or uid != auth.uid:
+		return
+	cloud.sync(uid, token, save.best_stars.duplicate())
+
+
+func _on_synced(uid: String, stars: Array) -> void:
+	if uid == auth.uid:
+		save.merge(stars)
+		sync_status = ""
+
+
+func _on_sync_failed(message: String) -> void:
+	sync_status = "Sin sincronizar: %s" % message
 
 
 func _on_sign_in_failed(message: String) -> void:
@@ -373,8 +418,9 @@ func _draw_login(font: Font) -> void:
 		draw_string(font, Vector2(BTN_LOGIN.position.x - 300, BTN_LOGIN.position.y + 19), auth.display_name, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
 	draw_rect(BTN_LOGIN, Color("555770"))
 	draw_string(font, BTN_LOGIN.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_LOGIN.size.x, 13)
-	if auth_status != "":
-		draw_string(font, BTN_LOGIN.end + Vector2(-300, 14), auth_status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
+	var status := auth_status if auth_status != "" else sync_status
+	if status != "":
+		draw_string(font, BTN_LOGIN.end + Vector2(-300, 14), status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
 
 
 func _draw_result(font: Font) -> void:
