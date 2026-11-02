@@ -10,6 +10,8 @@ Llega > espera sitio > va al mostrador > pide comprar o reparar un objeto
 - Comprar: el herrero coge el objeto del estante y se lo da > paga y se va
 - Reparar: el herrero recoge el objeto roto > lo lleva al yunque > lo recoge arreglado > se lo devuelve > paga y se va
 Precios de compra y reparación por objeto en data/venues.json
+- El herrero lleva un objeto cada vez. Si necesita las manos libres (recoger un objeto roto o un arreglo) y lleva uno nuevo del estante, lo devuelve solo; el de un cliente no lo suelta
+- Ir al yunque con un objeto nuevo del estante lo desecha siempre
 ## Pendiente de definir
 - Paciencia, precios, tiempos, propinas, combos
 - Objetivos de nivel y progresión

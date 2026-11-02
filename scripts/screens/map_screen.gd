@@ -111,11 +111,10 @@ func _draw_top_bar(width: float) -> void:
 func _draw_account(font: Font) -> void:
 	var who := player_name if player_name != "" else "Invitado"
 	var label := "Cerrar sesión" if player_name != "" else "Iniciar sesión"
-	draw_string(font, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
-	draw_rect(BTN_ACCOUNT, Color("555770"))
-	draw_string(font, BTN_ACCOUNT.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_ACCOUNT.size.x, 13)
+	UiDraw.text(self, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, 13, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_RIGHT, 292)
+	UiDraw.wood_button(self, BTN_ACCOUNT, label, 13)
 	if sync_status != "":
-		draw_string(font, BTN_ACCOUNT.end + Vector2(-300, 14), sync_status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
+		UiDraw.text(self, BTN_ACCOUNT.end + Vector2(-300, 16), sync_status, 11, SpriteFactory.PALETTE["O"], HORIZONTAL_ALIGNMENT_RIGHT, 300)
 
 
 # Camino de tierra con una curva suave entre dos escenarios.
@@ -162,10 +161,9 @@ func _draw_venue(index: int) -> void:
 		draw_string(font, card.position + Vector2(0, 33), status, HORIZONTAL_ALIGNMENT_CENTER, card.size.x, 12, palette["D"])
 		return
 	var center := card.position + Vector2(card.size.x / 2.0 - 16, 28)
-	draw_circle(center, 6.0, palette["Y"])
-	draw_arc(center, 6.0, 0.0, TAU, 16, palette["K"], 1.5)
+	UiDraw.small_star(self, center, true)
 	var stars := "%d/%d" % [save.total_stars(str(venue["id"])), level_count * 3]
-	draw_string(font, center + Vector2(10, 5), stars, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, palette["K"])
+	draw_string(font, center + Vector2(12, 5), stars, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, palette["K"])
 
 
 func _icon(sprite_name: String) -> Texture2D:

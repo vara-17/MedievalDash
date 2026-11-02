@@ -8,6 +8,7 @@ extends Node2D
 enum Phase { LOGIN, MAP, LEVELS, PLAYING, RESULT }
 
 const LOGIN_WALL_ROWS := 6
+const LEVELS_WALL_ROWS := 4
 
 # Subclase de Level que se juega según el "gameplay" de cada escenario.
 var gameplays: Dictionary = {"tavern": TavernLevel, "armory": ArmoryLevel}
@@ -70,8 +71,14 @@ func _set_phase(new_phase: int) -> void:
 	phase = new_phase
 	if phase != Phase.PLAYING and phase != Phase.RESULT:
 		_free_level()
-	background.visible = phase == Phase.LOGIN or phase == Phase.PLAYING or phase == Phase.RESULT
-	background.wall_rows = LOGIN_WALL_ROWS if phase == Phase.LOGIN else 1
+	background.visible = phase != Phase.MAP
+	match phase:
+		Phase.LOGIN:
+			background.wall_rows = LOGIN_WALL_ROWS
+		Phase.LEVELS:
+			background.wall_rows = LEVELS_WALL_ROWS
+		_:
+			background.wall_rows = 1
 	background.floor_sprite = Background.DEFAULT_FLOOR if phase == Phase.LOGIN else str(venue.get("floor", Background.DEFAULT_FLOOR))
 	login_screen.visible = phase == Phase.LOGIN
 	map_screen.visible = phase == Phase.MAP

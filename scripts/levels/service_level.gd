@@ -7,7 +7,7 @@ extends Level
 # sus clientes y sus puestos (barra, estantes, yunque) y decide cómo se sirve.
 
 const DOOR_POS := Vector2(10, 180)
-const DOOR_RECT := Rect2(0, 150, 20, 60)
+const DOOR_CENTER := Vector2(16, 180)
 const QUEUE_SLOTS := [Vector2(60, 110), Vector2(60, 180), Vector2(60, 250)]
 const STAFF_START := Vector2(120, 180)
 const TAP_RADIUS := 30.0
@@ -141,11 +141,11 @@ func _send_selected_to(s: Spot) -> void:
 
 
 func _draw_scene() -> void:
-	draw_rect(DOOR_RECT, Color("8d6e63"))
+	UiDraw.sprite(self, SpriteFactory.make("door"), DOOR_CENTER)
 	if running and selected != null:
 		for s in spots:
 			if s.customer == null:
-				draw_rect(s.tap_rect(), Color.LIME_GREEN, false, 2.0)
+				draw_rect(s.tap_rect(), SpriteFactory.PALETTE["N"], false, 2.0)
 
 
 # --- Para las subclases ---

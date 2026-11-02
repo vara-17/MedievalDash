@@ -59,13 +59,11 @@ func smith_position() -> Vector2:
 
 
 func _draw() -> void:
-	draw_string(ThemeDB.fallback_font, Vector2(-30, -30), "Yunque", HORIZONTAL_ALIGNMENT_CENTER, 60, 13)
 	if tex != null:
 		draw_texture_rect(tex, SpriteFactory.rect_centered(tex, Vector2.ZERO), false)
 	if working != null:
 		var ratio := 1.0 - timer / repair_time
-		draw_rect(Rect2(-28, 20, 56, 6), Color.DIM_GRAY)
-		draw_rect(Rect2(-28, 20, 56.0 * ratio, 6), SpriteFactory.PALETTE["O"])
+		UiDraw.progress_bar(self, Rect2(-28, 20, 56, 8), ratio, SpriteFactory.PALETTE["O"])
 		if working.item_tex != null:
 			draw_texture_rect(working.item_tex, SpriteFactory.rect_centered(working.item_tex, Vector2(0, -6)), false, Color(1, 0.75, 0.6))
 	for i in ready_items.size():

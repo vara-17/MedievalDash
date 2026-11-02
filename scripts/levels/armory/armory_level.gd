@@ -87,15 +87,24 @@ func _take_from_rack(r: Rack) -> void:
 
 
 # Deja en el yunque el objeto roto que lleva, o recoge uno ya arreglado.
+# Un objeto nuevo del estante se desecha aquí siempre.
 func _use_anvil() -> void:
 	var smith := staff as Smith
 	if smith.carry_owner != null and smith.carry_broken:
 		anvil.add_repair(smith.carry_owner)
 		smith.carry("", null, false)
-	elif smith.is_empty_handed():
+	elif _free_hands() and not anvil.ready_items.is_empty():
 		var c := anvil.take_ready()
-		if c != null:
-			smith.carry(c.item, c, false)
+		smith.carry(c.item, c, false)
+
+
+# Deja las manos libres si hace falta: un objeto nuevo del estante se devuelve
+# solo; el de un cliente (roto o arreglado) no se suelta nunca.
+func _free_hands() -> bool:
+	var smith := staff as Smith
+	if smith.carry_owner == null:
+		smith.carry("", null, false)
+	return smith.is_empty_handed()
 
 
 func _serve(c: ServiceCustomer) -> void:
@@ -104,7 +113,7 @@ func _serve(c: ServiceCustomer) -> void:
 	match ac.step:
 		ArmoryCustomer.Step.WAITING:
 			if ac.repair:
-				if smith.is_empty_handed():
+				if _free_hands():
 					smith.carry(ac.item, ac, true)
 					ac.hand_over()
 			elif smith.carry_owner == null and smith.carry_item == ac.item:

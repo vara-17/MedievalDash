@@ -1,8 +1,15 @@
 class_name Kitchen
 extends Node2D
 
+# Barra donde se preparan las bebidas, una cada vez. Las listas se quedan
+# encima hasta que el tabernero las recoge.
+
 const RECT := Rect2(-50, -40, 100, 80)
 const COOK_TIME := 4.0
+const BARREL_POS := Vector2(30, -52)
+const DISH_POS := Vector2(-30, -42)
+const DISH_GAP := 22.0
+const PROGRESS_BAR := Rect2(-30, 6, 70, 10)
 
 var pending: Array = []
 var ready_dishes: Array = []
@@ -52,14 +59,14 @@ func waiter_position() -> Vector2:
 
 
 func _draw() -> void:
-	draw_rect(RECT, SpriteFactory.PALETTE["B"])
-	draw_rect(RECT, SpriteFactory.PALETTE["K"], false, 2.0)
-	draw_string(ThemeDB.fallback_font, Vector2(-16, -46), "Barra", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+	UiDraw.sprite(self, SpriteFactory.make("bar"), Vector2.ZERO)
+	UiDraw.sprite(self, SpriteFactory.make("barrel"), BARREL_POS)
 	if cooking != null:
 		var ratio := 1.0 - cook_timer / COOK_TIME
-		draw_rect(Rect2(-40, 28, 80, 8), Color.DIM_GRAY)
-		draw_rect(Rect2(-40, 28, 80.0 * ratio, 8), cooking.color)
+		UiDraw.progress_bar(self, PROGRESS_BAR, ratio, SpriteFactory.PALETTE["Y"])
+		if cooking.dish_tex != null:
+			UiDraw.sprite(self, cooking.dish_tex, PROGRESS_BAR.position + Vector2(-12, 3), Color(1, 1, 1, 0.6))
 	for i in ready_dishes.size():
 		var c: TavernCustomer = ready_dishes[i]
 		if c.dish_tex != null:
-			draw_texture_rect(c.dish_tex, SpriteFactory.rect_centered(c.dish_tex, Vector2(-30 + i * 30, -10)), false)
+			UiDraw.sprite(self, c.dish_tex, DISH_POS + Vector2(i * DISH_GAP, 0))

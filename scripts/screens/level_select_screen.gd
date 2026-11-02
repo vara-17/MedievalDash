@@ -1,17 +1,19 @@
 class_name LevelSelectScreen
 extends Node2D
 
-# Niveles de un escenario, con las estrellas conseguidas. Cada nivel se
-# desbloquea al sacar al menos una estrella en el anterior.
+# Niveles de un escenario, con las estrellas conseguidas, sobre el fondo del
+# local. Cada nivel se desbloquea al sacar al menos una estrella en el anterior.
 
 signal back_pressed
 signal level_pressed(index: int)
 
 const BTN_BACK := Rect2(8, 8, 90, 30)
+const SIGN := Rect2(110, 16, 420, 90)
 const COLUMNS := 3
-const BTN_SIZE := Vector2(160, 90)
-const GAP := 20.0
-const ORIGIN := Vector2(60, 110)
+const BTN_SIZE := Vector2(170, 112)
+const GAP := 18.0
+const ORIGIN := Vector2(48, 150)
+const STAR_GAP := 38.0
 
 var venue: Dictionary = {}
 var save: SaveData
@@ -44,28 +46,27 @@ func _button_rect(i: int) -> Rect2:
 func _draw() -> void:
 	if save == null:
 		return
-	var font := ThemeDB.fallback_font
-	var dark := Color("2b2d42")
+	var palette := SpriteFactory.PALETTE
 	var venue_id := str(venue["id"])
 	var levels: Array = venue["levels"]
-	draw_rect(get_viewport_rect(), dark)
-	draw_string(font, Vector2(0, 60), str(venue["name"]), HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
-	draw_string(font, Vector2(0, 88), "%s · Elige un nivel" % venue["goal"], HORIZONTAL_ALIGNMENT_CENTER, 640, 14)
+	UiDraw.board(self, SIGN)
+	UiDraw.text(self, Vector2(SIGN.position.x, 60), str(venue["name"]), 34, palette["Y"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
+	UiDraw.text(self, Vector2(SIGN.position.x, 88), "%s · Elige un nivel" % venue["goal"], 14, palette["W"], HORIZONTAL_ALIGNMENT_CENTER, SIGN.size.x)
 	UiDraw.wood_button(self, BTN_BACK, "‹ Mapa")
 	for i in levels.size():
-		var r := _button_rect(i)
-		var unlocked := save.is_unlocked(venue_id, i)
-		var text_color := dark if unlocked else Color.GRAY
-		draw_rect(r, Color("81b29a") if unlocked else Color("555770"))
-		draw_string(font, r.position + Vector2(0, 26), "Nivel %d" % (i + 1), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18, text_color)
-		draw_string(font, r.position + Vector2(0, 46), str(levels[i]["name"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 12, text_color)
-		if unlocked:
-			var earned := save.get_stars(venue_id, i)
-			for s in 3:
-				var center := r.position + Vector2(r.size.x / 2.0 - 28.0 + s * 28.0, 70)
-				if s < earned:
-					draw_circle(center, 9.0, Color.GOLD)
-				else:
-					draw_arc(center, 9.0, 0.0, TAU, 20, dark, 2.0)
-		else:
-			draw_string(font, r.position + Vector2(0, 74), "Bloqueado", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 12, Color.GRAY)
+		_draw_level_card(i, levels[i], save.is_unlocked(venue_id, i), save.get_stars(venue_id, i))
+
+
+func _draw_level_card(index: int, level: Dictionary, unlocked: bool, earned: int) -> void:
+	var palette := SpriteFactory.PALETTE
+	var r := _button_rect(index)
+	UiDraw.board(self, r, not unlocked)
+	var text_color: Color = palette["W"] if unlocked else palette["A"]
+	UiDraw.text(self, r.position + Vector2(0, 28), "Nivel %d" % (index + 1), 18, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	UiDraw.text(self, r.position + Vector2(0, 48), str(level["name"]), 12, text_color, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	var center := r.position + Vector2(r.size.x / 2.0, 80)
+	if unlocked:
+		for s in 3:
+			UiDraw.star(self, center + Vector2((s - 1) * STAR_GAP, 0), s < earned, "A")
+	else:
+		UiDraw.sprite(self, SpriteFactory.make("lock"), center)

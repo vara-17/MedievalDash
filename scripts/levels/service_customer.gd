@@ -12,6 +12,7 @@ enum State { QUEUED, WALKING, AT_SPOT }
 const SPEED := 120.0
 const HINT_POS := Vector2(-50, 30)
 const HINT_WIDTH := 100.0
+const PATIENCE_BAR := Rect2(-17, -31, 34, 7)
 
 var state: int = State.QUEUED
 var spot: Spot = null
@@ -74,17 +75,26 @@ func leave(paid: bool) -> void:
 
 func _draw() -> void:
 	if selected:
-		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 24, Color.WHITE, 2.0)
+		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 24, SpriteFactory.PALETTE["N"], 2.0)
 	if body_tex != null:
 		draw_texture_rect(body_tex, SpriteFactory.rect_centered(body_tex, Vector2.ZERO), false)
 	if state == State.WALKING:
 		return
 	if _shows_patience():
 		var ratio := patience / max_patience
-		draw_rect(Rect2(-16, -28, 32, 4), Color.DARK_RED)
-		draw_rect(Rect2(-16, -28, 32.0 * ratio, 4), Color.LIME_GREEN)
+		UiDraw.progress_bar(self, PATIENCE_BAR, ratio, _patience_color(ratio))
 	_draw_extra()
-	draw_string(ThemeDB.fallback_font, HINT_POS, _hint_text(), HORIZONTAL_ALIGNMENT_CENTER, HINT_WIDTH, 11)
+	UiDraw.text(self, HINT_POS, _hint_text(), 11, SpriteFactory.PALETTE["W"], HORIZONTAL_ALIGNMENT_CENTER, HINT_WIDTH)
+
+
+# Verde con paciencia, amarillo a medias, rojo a punto de irse.
+static func _patience_color(ratio: float) -> Color:
+	var palette := SpriteFactory.PALETTE
+	if ratio > 0.5:
+		return palette["N"]
+	if ratio > 0.25:
+		return palette["Y"]
+	return palette["R"]
 
 
 # Al llegar al sitio.

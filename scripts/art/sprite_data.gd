@@ -276,6 +276,100 @@ static func rows(sprite_name: String) -> Array:
 				"ZAAAAAAAAAAAAAAK",
 				"KKKKKKKKKKKKKKKK",
 			]
+		"star":
+			return [
+				"................",
+				".......KK.......",
+				"......KXXK......",
+				"......KXXK......",
+				".....KXWXXK.....",
+				"KKKKKXXXXXXKKKKK",
+				"KXXXXXXXXXXXXXXK",
+				".KXXXXXXXXXXXXK.",
+				"..KXXXXXXXXXXK..",
+				"...KXXXXXXXXK...",
+				"...KXXXXXXXXK...",
+				"..KXXXXKKXXXXK..",
+				"..KXXXK..KXXXK..",
+				".KXXKK....KKXXK.",
+				".KKK........KKK.",
+				"................",
+			]
+		"star_small":
+			return [
+				"...KK...",
+				"..KXXK..",
+				"KKKXXKKK",
+				"KXXXXXXK",
+				".KXXXXK.",
+				".KXXXXK.",
+				"KXXKKXXK",
+				"KKK..KKK",
+			]
+		"coin":
+			return [
+				"..KKKK..",
+				".KYYYYK.",
+				"KYWYYYOK",
+				"KYYOYYOK",
+				"KYYOYYOK",
+				"KYYYYYOK",
+				".KOOOOK.",
+				"..KKKK..",
+			]
+		"hourglass":
+			return [
+				"KKKKKKKK",
+				".KWWWWK.",
+				"..KYYK..",
+				"...KK...",
+				"..KWWK..",
+				".KWYYWK.",
+				".KYYYYK.",
+				"KKKKKKKK",
+			]
+		"lock":
+			return [
+				"................",
+				"................",
+				".....KKKKKK.....",
+				"....KAAAAAAK....",
+				"....KAKKKKAK....",
+				"....KAK..KAK....",
+				"....KAK..KAK....",
+				"...KKKKKKKKKK...",
+				"...KYYYYYYYYK...",
+				"...KYYYKKYYYK...",
+				"...KYYYKKYYYK...",
+				"...KYYYYYYYYK...",
+				"...KOOOOOOOOK...",
+				"...KKKKKKKKKK...",
+				"................",
+				"................",
+			]
+		"barrel":
+			return [
+				"................",
+				"....KKKKKKKK....",
+				"...KBLLBBLLBK...",
+				"..KAAAAAAAAAAK..",
+				"..KBLLBBBLLBBK..",
+				".KBLLBBBBLLBBBK.",
+				".KBLLBBBBLLBBBK.",
+				".KAAAAAAAAAAAAK.",
+				".KBLLBBBBLLBBBK.",
+				".KBLLBBBBLLBBBK.",
+				"..KBLLBBBLLBBK..",
+				"..KAAAAAAAAAAK..",
+				"...KBLLBBLLBK...",
+				"....KKKKKKKK....",
+				"................",
+				"................",
+			]
+		"door":
+			return _door()
+		"bar":
+			return _bar()
 	return []
 
 
@@ -340,4 +434,47 @@ static func _table() -> Array:
 	for i in 3:
 		rows.append(".." + "KDDK" + ".".repeat(20) + "KDDK" + "..")
 	rows.append(".." + "KKKK" + ".".repeat(20) + "KKKK" + "..")
+	return rows
+
+
+# Puerta de 16x32: arco de madera con dos bandas de hierro y tirador.
+static func _door() -> Array:
+	var planks := "K" + "LBB".repeat(4) + "LBK"
+	var band := "K" + "A".repeat(14) + "K"
+	var rows: Array = [
+		"....KKKKKKKK....",
+		"..KKLBBLBBLBKK..",
+		".KLBBLBBLBBLBBK.",
+	]
+	for y in range(3, 31):
+		if y == 8 or y == 24:
+			rows.append(band)
+		elif y == 17:
+			rows.append("K" + "LBBLBBLBBLB" + "YY" + "BK")
+		else:
+			rows.append(planks)
+	rows.append("K".repeat(16))
+	return rows
+
+
+# Barra de la taberna, 48x36: encimera clara y frente de paneles de madera.
+static func _bar() -> Array:
+	var rows: Array = ["K".repeat(48)]
+	for y in 3:
+		rows.append("K" + ("W" if y == 0 else "L").repeat(46) + "K")
+	rows.append("K".repeat(48))
+	for y in range(5, 32):
+		var row := "K"
+		for x in range(1, 47):
+			var col := (x - 1) % 23
+			if col == 0 or col == 22 or y == 7 or y == 29:
+				row += "D"
+			elif col == 1 or y == 8:
+				row += "L"
+			else:
+				row += "B"
+		rows.append(row + "K")
+	for y in 3:
+		rows.append("K" + "D".repeat(46) + "K")
+	rows.append("K".repeat(48))
 	return rows
