@@ -70,10 +70,10 @@ func _create_customer() -> ServiceCustomer:
 func _tap_station(p: Vector2) -> bool:
 	for r in racks:
 		if r.contains_point(p):
-			staff.go_to(r.smith_position(), _take_from_rack.bind(r))
+			staff.add_action(r.smith_position(), _take_from_rack.bind(r))
 			return true
 	if anvil.contains_point(p):
-		staff.go_to(anvil.smith_position(), _use_anvil)
+		staff.add_action(anvil.smith_position(), _use_anvil)
 		return true
 	return false
 
@@ -101,8 +101,6 @@ func _use_anvil() -> void:
 func _serve(c: ServiceCustomer) -> void:
 	var ac := c as ArmoryCustomer
 	var smith := staff as Smith
-	if ac.gone:
-		return
 	match ac.step:
 		ArmoryCustomer.Step.WAITING:
 			if ac.repair:

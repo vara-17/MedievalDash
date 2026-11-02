@@ -39,7 +39,7 @@ func _create_customer() -> ServiceCustomer:
 
 func _tap_station(p: Vector2) -> bool:
 	if kitchen.contains_point(p):
-		staff.go_to(kitchen.waiter_position(), _pick_up_dish)
+		staff.add_action(kitchen.waiter_position(), _pick_up_dish)
 		return true
 	return false
 
@@ -53,8 +53,6 @@ func _pick_up_dish() -> void:
 func _serve(c: ServiceCustomer) -> void:
 	var tc := c as TavernCustomer
 	var waiter := staff as Waiter
-	if tc.gone:
-		return
 	match tc.step:
 		TavernCustomer.Step.SEATED:
 			tc.take_order()

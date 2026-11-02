@@ -7,7 +7,8 @@ extends ServiceCustomer
 
 enum Step { WAITING, REPAIRING }
 
-const BUBBLE := Rect2(-19, -68, 38, 36)
+# A la izquierda del cliente, para no tapar al del mostrador de arriba.
+const BUBBLE := Rect2(-64, -26, 38, 36)
 
 var step: int = Step.WAITING
 # Objeto que quiere ("sword", "shield"...) y si es para reparar.

@@ -76,6 +76,7 @@ func _spawn_customer() -> void:
 
 
 func _on_customer_left(c: ServiceCustomer, paid: bool) -> void:
+	staff.cancel_actions_about(c)
 	_forget_customer(c)
 	_on_customer_gone(c, paid)
 	if c.spot != null:
@@ -104,9 +105,15 @@ func _on_tap(p: Vector2) -> void:
 		if c.state == ServiceCustomer.State.QUEUED:
 			continue
 		if p.distance_to(c.position) <= TAP_RADIUS or c.spot.tap_rect().has_point(p):
-			staff.go_to(c.spot.staff_position(), _serve.bind(c))
+			staff.add_action(c.spot.staff_position(), _try_serve.bind(c), c)
 			return
-	staff.go_to(p, Callable())
+	staff.add_action(p)
+
+
+# Al llegar al sitio del cliente: si sigue ahí, la subclase decide qué hacer.
+func _try_serve(c: ServiceCustomer) -> void:
+	if is_instance_valid(c) and not c.gone:
+		_serve(c)
 
 
 func _select(c: ServiceCustomer) -> void:
@@ -176,12 +183,12 @@ func _create_customer() -> ServiceCustomer:
 	return ServiceCustomer.new()
 
 
-# Si el toque es sobre un puesto, manda allí a quien atiende y devuelve true.
+# Si el toque es sobre un puesto, añade la acción de ir allí y devuelve true.
 func _tap_station(_p: Vector2) -> bool:
 	return false
 
 
-# Quien atiende ha llegado al sitio del cliente.
+# Quien atiende ha llegado al sitio del cliente; si no hay nada que hacer, no hace nada.
 func _serve(_c: ServiceCustomer) -> void:
 	pass
 
