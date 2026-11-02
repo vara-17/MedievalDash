@@ -20,6 +20,14 @@ var patience: float = QUEUE_PATIENCE
 var table_patience: float = TABLE_PATIENCE
 var eat_timer: float = 0.0
 var gone: bool = false
+var body_tex: Texture2D
+var dish_tex: Texture2D
+
+
+func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	body_tex = SpriteFactory.make("customer", {"X": color})
+	dish_tex = SpriteFactory.make("mug", {"X": color})
 
 
 func _process(delta: float) -> void:
@@ -82,9 +90,9 @@ func _hint_text() -> String:
 		State.SEATED:
 			return "Toca: tomar nota"
 		State.ORDERED:
-			return "Esperando plato"
+			return "Esperando bebida"
 		State.EATING:
-			return "Comiendo..."
+			return "Bebiendo..."
 		State.PAYING:
 			return "Toca: cobrar"
 	return ""
@@ -92,8 +100,9 @@ func _hint_text() -> String:
 
 func _draw() -> void:
 	if selected:
-		draw_arc(Vector2.ZERO, 18.0, 0.0, TAU, 24, Color.WHITE, 2.0)
-	draw_circle(Vector2.ZERO, 12.0, color)
+		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 24, Color.WHITE, 2.0)
+	if body_tex != null:
+		draw_texture_rect(body_tex, SpriteFactory.rect_centered(body_tex, Vector2.ZERO), false)
 	if state == State.WALKING:
 		return
 	if state != State.EATING:

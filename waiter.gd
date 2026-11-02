@@ -6,10 +6,13 @@ const SPEED := 180.0
 var target: Vector2
 var on_arrive: Callable = Callable()
 var carrying: Customer = null
+var tex: Texture2D
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	target = position
+	tex = SpriteFactory.make("waiter")
 
 
 func go_to(p: Vector2, callback: Callable) -> void:
@@ -32,6 +35,7 @@ func _check_arrival() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 13.0, Color("4fc3f7"))
-	if carrying != null:
-		draw_circle(Vector2(0, -22), 9.0, carrying.color)
+	if tex != null:
+		draw_texture_rect(tex, SpriteFactory.rect_centered(tex, Vector2.ZERO), false)
+	if carrying != null and carrying.dish_tex != null:
+		draw_texture_rect(carrying.dish_tex, SpriteFactory.rect_centered(carrying.dish_tex, Vector2(0, -26)), false)

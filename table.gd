@@ -4,6 +4,12 @@ extends Node2D
 const SIZE := Vector2(64, 40)
 
 var customer: Customer = null
+var tex: Texture2D
+
+
+func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tex = SpriteFactory.make("table")
 
 
 func seat_position() -> Vector2:
@@ -15,4 +21,5 @@ func waiter_position() -> Vector2:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-SIZE / 2.0, SIZE), Color("a1887f"))
+	if tex != null:
+		draw_texture_rect(tex, SpriteFactory.rect_centered(tex, Vector2.ZERO), false)

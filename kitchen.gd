@@ -10,6 +10,10 @@ var cooking: Customer = null
 var cook_timer: float = 0.0
 
 
+func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
+
 func _process(delta: float) -> void:
 	if cooking == null and not pending.is_empty():
 		cooking = pending.pop_front()
@@ -48,12 +52,14 @@ func waiter_position() -> Vector2:
 
 
 func _draw() -> void:
-	draw_rect(RECT, Color("546e7a"))
-	draw_string(ThemeDB.fallback_font, Vector2(-24, -46), "Cocina", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+	draw_rect(RECT, SpriteFactory.PALETTE["B"])
+	draw_rect(RECT, SpriteFactory.PALETTE["K"], false, 2.0)
+	draw_string(ThemeDB.fallback_font, Vector2(-16, -46), "Barra", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
 	if cooking != null:
 		var ratio := 1.0 - cook_timer / COOK_TIME
 		draw_rect(Rect2(-40, 28, 80, 8), Color.DIM_GRAY)
 		draw_rect(Rect2(-40, 28, 80.0 * ratio, 8), cooking.color)
 	for i in ready_dishes.size():
 		var c: Customer = ready_dishes[i]
-		draw_circle(Vector2(-30 + i * 30, -10), 11.0, c.color)
+		if c.dish_tex != null:
+			draw_texture_rect(c.dish_tex, SpriteFactory.rect_centered(c.dish_tex, Vector2(-30 + i * 30, -10)), false)
