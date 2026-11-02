@@ -4,10 +4,13 @@ extends Node2D
 # Mapa del reino: un edificio por escenario (taberna, armería...), unidos por un
 # camino. Cada escenario se desbloquea al completar el que pide en "requires".
 # Al tocar un escenario disponible emite venue_pressed con su índice.
+# Arriba a la derecha muestra quién juega y el botón de sesión (account_pressed).
 
 signal venue_pressed(index: int)
+signal account_pressed
 
 const TOP_BAR_HEIGHT := 40.0
+const BTN_ACCOUNT := Rect2(470, 6, 160, 28)
 const CARD_SIZE := Vector2(130, 40)
 const CARD_OFFSET := Vector2(-65, 30)
 const PLAQUE_SIZE := Vector2(36, 36)
@@ -30,10 +33,18 @@ var house_texs: Dictionary = {}
 var tree_tex: Texture2D
 var icon_texs: Dictionary = {}
 var tufts: Array[Vector2] = []
+# Nombre de quien juega ("" si es invitado) y error de sincronización, si lo hay.
+var player_name: String = "":
+	set(value):
+		player_name = value
+		queue_redraw()
+var sync_status: String = "":
+	set(value):
+		sync_status = value
+		queue_redraw()
 
 
 func _ready() -> void:
-	z_index = -1
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	tree_tex = SpriteFactory.make("tree")
 	var rng := RandomNumberGenerator.new()
@@ -51,16 +62,13 @@ func refresh(new_venues: Array, new_save: SaveData) -> void:
 
 
 func is_unlocked(index: int) -> bool:
-	var requires := str(venues[index].get("requires", ""))
-	if requires == "":
-		return true
-	for v in venues:
-		if v["id"] == requires:
-			return save.is_venue_complete(requires, v["levels"].size())
-	return false
+	return VenueCatalog.is_unlocked(venues, index, save)
 
 
 func handle_tap(p: Vector2) -> void:
+	if BTN_ACCOUNT.has_point(p):
+		account_pressed.emit()
+		return
 	for i in venues.size():
 		var rect := Rect2(HIT_RECT.position + _venue_pos(i), HIT_RECT.size)
 		if rect.has_point(p) and is_unlocked(i) and not venues[i]["levels"].is_empty():
@@ -97,6 +105,17 @@ func _draw_top_bar(width: float) -> void:
 	draw_rect(Rect2(0, 0, width, TOP_BAR_HEIGHT), palette["D"])
 	draw_rect(Rect2(0, TOP_BAR_HEIGHT - 3, width, 3), palette["K"])
 	draw_string(font, Vector2(14, 27), "Mapa del reino", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, palette["Y"])
+	_draw_account(font)
+
+
+func _draw_account(font: Font) -> void:
+	var who := player_name if player_name != "" else "Invitado"
+	var label := "Cerrar sesión" if player_name != "" else "Iniciar sesión"
+	draw_string(font, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
+	draw_rect(BTN_ACCOUNT, Color("555770"))
+	draw_string(font, BTN_ACCOUNT.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_ACCOUNT.size.x, 13)
+	if sync_status != "":
+		draw_string(font, BTN_ACCOUNT.end + Vector2(-300, 14), sync_status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
 
 
 # Camino de tierra con una curva suave entre dos escenarios.
