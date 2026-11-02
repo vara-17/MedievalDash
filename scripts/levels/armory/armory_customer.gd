@@ -1,30 +1,18 @@
 class_name ArmoryCustomer
-extends Node2D
+extends ServiceCustomer
 
 # Cliente de la armería. Quiere comprar un objeto o que le reparen el suyo.
-# Ciclo: cola > camina al mostrador > espera (que le traigan el objeto, o que
-# le recojan el roto) > si es reparación, espera el arreglo > paga y se va.
+# En el mostrador: espera (a que le traigan el objeto, o a que le recojan el
+# roto) y, si es reparación, espera el arreglo. Al recibirlo paga y se va.
 
-signal left(who)
+enum Step { WAITING, REPAIRING }
 
-enum State { QUEUED, WALKING, WAITING, REPAIRING }
-
-const SPEED := 120.0
 const BUBBLE := Rect2(-19, -68, 38, 36)
 
-var state: int = State.QUEUED
-var counter: Counter = null
-var queue_pos: Vector2
-var selected: bool = false
-var color: Color = Color.from_hsv(randf(), 0.5, 1.0)
+var step: int = Step.WAITING
 # Objeto que quiere ("sword", "shield"...) y si es para reparar.
 var item: String = ""
 var repair: bool = false
-var max_patience: float = 25.0
-var patience: float = 25.0
-var counter_patience: float = 20.0
-var gone: bool = false
-var body_tex: Texture2D
 var item_tex: Texture2D
 
 
@@ -39,91 +27,40 @@ static func draw_crack(canvas: CanvasItem, r: Rect2) -> void:
 
 
 func _ready() -> void:
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	body_tex = SpriteFactory.make("customer", {"X": color})
+	super()
 	item_tex = SpriteFactory.make(item)
 
 
-func _process(delta: float) -> void:
-	match state:
-		State.QUEUED:
-			position = position.move_toward(queue_pos, SPEED * delta)
-			_lose_patience(delta)
-		State.WALKING:
-			var spot := counter.customer_position()
-			position = position.move_toward(spot, SPEED * delta)
-			if position.is_equal_approx(spot):
-				state = State.WAITING
-		State.WAITING, State.REPAIRING:
-			_lose_patience(delta)
-	queue_redraw()
-
-
-func _lose_patience(delta: float) -> void:
-	patience -= delta
-	if patience <= 0.0:
-		_leave()
-
-
-func go_to_counter(c: Counter) -> void:
-	counter = c
-	state = State.WALKING
-	selected = false
-	max_patience = counter_patience
-	patience = counter_patience
+func _on_arrived() -> void:
+	step = Step.WAITING
 
 
 # Entrega su objeto roto al herrero y espera el arreglo.
 func hand_over() -> void:
-	state = State.REPAIRING
-	patience = max_patience
+	step = Step.REPAIRING
+	reset_patience()
 
 
 # Recibe lo que pidió: paga y se va.
 func receive() -> void:
-	_leave()
-
-
-func _leave() -> void:
-	if gone:
-		return
-	gone = true
-	left.emit(self)
+	leave(true)
 
 
 func _hint_text() -> String:
-	match state:
-		State.QUEUED:
-			return "Elige mostrador" if selected else "Toca: atender"
-		State.WAITING:
-			return "Toca: recoger" if repair else "Quiere comprar"
-		State.REPAIRING:
-			return "Esperando arreglo"
-	return ""
-
-
-func _draw() -> void:
-	if selected:
-		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 24, Color.WHITE, 2.0)
-	if body_tex != null:
-		draw_texture_rect(body_tex, SpriteFactory.rect_centered(body_tex, Vector2.ZERO), false)
-	if state == State.WALKING:
-		return
-	var ratio := patience / max_patience
-	draw_rect(Rect2(-16, -28, 32, 4), Color.DARK_RED)
-	draw_rect(Rect2(-16, -28, 32.0 * ratio, 4), Color.LIME_GREEN)
-	if state != State.QUEUED:
-		_draw_bubble()
-	draw_string(ThemeDB.fallback_font, Vector2(-50, 30), _hint_text(), HORIZONTAL_ALIGNMENT_CENTER, 100, 11)
+	if state == State.QUEUED:
+		return "Elige mostrador" if selected else "Toca: atender"
+	if step == Step.REPAIRING:
+		return "Esperando arreglo"
+	return "Toca: recoger" if repair else "Quiere comprar"
 
 
 # Bocadillo con lo que quiere; si es reparación, el objeto sale roto.
-func _draw_bubble() -> void:
+func _draw_extra() -> void:
+	if state != State.AT_SPOT or item_tex == null:
+		return
 	var palette := SpriteFactory.PALETTE
 	draw_rect(BUBBLE, palette["K"])
 	draw_rect(BUBBLE.grow(-2), palette["W"])
-	if item_tex == null:
-		return
 	var r := SpriteFactory.rect_centered(item_tex, BUBBLE.get_center())
 	draw_texture_rect(item_tex, r, false)
 	if repair:

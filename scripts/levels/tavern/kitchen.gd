@@ -6,7 +6,7 @@ const COOK_TIME := 4.0
 
 var pending: Array = []
 var ready_dishes: Array = []
-var cooking: Customer = null
+var cooking: TavernCustomer = null
 var cook_timer: float = 0.0
 
 
@@ -26,18 +26,18 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
-func add_order(c: Customer) -> void:
+func add_order(c: TavernCustomer) -> void:
 	pending.append(c)
 
 
-func cancel_orders_of(c: Customer) -> void:
+func cancel_orders_of(c: TavernCustomer) -> void:
 	pending.erase(c)
 	ready_dishes.erase(c)
 	if cooking == c:
 		cooking = null
 
 
-func take_ready() -> Customer:
+func take_ready() -> TavernCustomer:
 	if ready_dishes.is_empty():
 		return null
 	return ready_dishes.pop_front()
@@ -60,6 +60,6 @@ func _draw() -> void:
 		draw_rect(Rect2(-40, 28, 80, 8), Color.DIM_GRAY)
 		draw_rect(Rect2(-40, 28, 80.0 * ratio, 8), cooking.color)
 	for i in ready_dishes.size():
-		var c: Customer = ready_dishes[i]
+		var c: TavernCustomer = ready_dishes[i]
 		if c.dish_tex != null:
 			draw_texture_rect(c.dish_tex, SpriteFactory.rect_centered(c.dish_tex, Vector2(-30 + i * 30, -10)), false)

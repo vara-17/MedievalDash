@@ -17,7 +17,7 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
   - art/ sprites en texto, SpriteFactory y decorados (fondo, portada)
   - ui/ piezas de interfaz comunes (UiDraw)
   - screens/ una por pantalla: login, mapa, niveles, resultado
-  - levels/ jugabilidad: level.gd es la base; una subcarpeta por tipo de escenario (tavern/...)
+  - levels/ jugabilidad: level.gd es la base (tiempo, puntos, marcador); service_level.gd, service_customer.gd, spot.gd y staff.gd son lo común de atender clientes (cola, sitios, quien atiende); una subcarpeta por tipo de escenario (tavern/, armory/)
 - assets/sprites, assets/audio
 - data/ escenarios y niveles (venues.json) y config en JSON
 - docs/ diseño (DISENO.md) y estado del proyecto (ESTADO.md)
@@ -32,4 +32,4 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
 - Nunca subir keystores ni contraseñas al repositorio
 - scripts/node_2d.gd es el script del nodo raíz de la escena principal; no adjuntar otro script a ese nodo
 - El progreso se guarda en user://save.json (clase SaveData); es el dato que más adelante se sincronizará con la cuenta de Google
-- Un tipo de escenario nuevo = subclase de Level en scripts/levels/<tipo>/, registrada en gameplays de node_2d.gd y con "gameplay" en data/venues.json
+- Un tipo de escenario nuevo = subclase de ServiceLevel (o de Level si no es de atender clientes) en scripts/levels/<tipo>/, registrada en gameplays de node_2d.gd y con "gameplay" en data/venues.json
