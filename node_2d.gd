@@ -34,6 +34,7 @@ var tables: Array[Table] = []
 var queue: Array[Customer] = []
 var customers: Array[Customer] = []
 var selected: Customer = null
+var background: Background
 var kitchen: Kitchen
 var waiter: Waiter
 var spawn_timer: float = 1.0
@@ -43,6 +44,9 @@ var score: int = 0
 func _ready() -> void:
 	_load_levels()
 	save.load_from_disk()
+	background = Background.new()
+	background.visible = false
+	add_child(background)
 	kitchen = Kitchen.new()
 	kitchen.position = Vector2(570, 180)
 	kitchen.visible = false
@@ -72,6 +76,7 @@ func _start_level(index: int) -> void:
 	score = 0
 	time_left = float(level["time"])
 	spawn_timer = 1.0
+	background.visible = true
 	kitchen.visible = true
 	waiter.visible = true
 	phase = Phase.PLAYING
@@ -96,6 +101,7 @@ func _clear_level() -> void:
 
 func _go_to_menu() -> void:
 	_clear_level()
+	background.visible = false
 	kitchen.visible = false
 	waiter.visible = false
 	phase = Phase.MENU
@@ -260,6 +266,7 @@ func _handle_menu_tap(p: Vector2) -> void:
 
 func _handle_result_tap(p: Vector2) -> void:
 	if BTN_MENU.has_point(p):
+		background.visible = false
 		phase = Phase.MENU
 	elif BTN_RETRY.has_point(p):
 		_start_level(level_index)
@@ -287,8 +294,8 @@ func _interact(c: Customer) -> void:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_rect(Rect2(0, 0, 640, 360), Color("2b2d42"))
 	if phase == Phase.MENU:
+		draw_rect(get_viewport_rect(), Color("2b2d42"))
 		_draw_menu(font)
 		return
 	draw_rect(Rect2(0, 150, 20, 60), Color("8d6e63"))

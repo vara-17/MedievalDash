@@ -1,0 +1,40 @@
+class_name Background
+extends Node2D
+
+# Fondo del local: pared de piedra arriba, zócalo y suelo de madera.
+# Se dibuja una sola vez (y al cambiar el tamaño de la ventana), detrás del resto.
+
+const WALL_ROWS := 1
+
+var floor_tex: Texture2D
+var wall_tex: Texture2D
+var base_tex: Texture2D
+
+
+func _ready() -> void:
+	z_index = -1
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	floor_tex = SpriteFactory.make("floor_wood")
+	wall_tex = SpriteFactory.make("wall_stone")
+	base_tex = SpriteFactory.make("wall_base")
+	get_viewport().size_changed.connect(queue_redraw)
+
+
+func _draw() -> void:
+	var view := get_viewport_rect().size
+	var y := 0.0
+	for i in WALL_ROWS:
+		y = _draw_row(wall_tex, y, view.x)
+	y = _draw_row(base_tex, y, view.x)
+	while y < view.y:
+		y = _draw_row(floor_tex, y, view.x)
+
+
+# Repite la textura a lo ancho y devuelve la y donde empieza la siguiente fila.
+func _draw_row(tex: Texture2D, y: float, width: float) -> float:
+	var size := tex.get_size() * SpriteFactory.SCALE
+	var x := 0.0
+	while x < width:
+		draw_texture_rect(tex, Rect2(Vector2(x, y), size), false)
+		x += size.x
+	return y + size.y
