@@ -10,6 +10,8 @@ signal quit_pressed
 
 const BTN_QUIT := Rect2(290, 4, 60, 24)
 
+# Escenario al que pertenece el nivel (datos comunes, como los objetos y precios).
+var venue: Dictionary = {}
 var config: Dictionary = {}
 var number: int = 0
 var running: bool = false
@@ -26,7 +28,8 @@ static func count_stars(level_config: Dictionary, final_score: int) -> int:
 	return stars
 
 
-func start(level_config: Dictionary, level_number: int) -> void:
+func start(level_venue: Dictionary, level_config: Dictionary, level_number: int) -> void:
+	venue = level_venue
 	config = level_config
 	number = level_number
 	score = 0

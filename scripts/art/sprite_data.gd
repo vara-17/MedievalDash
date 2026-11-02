@@ -181,6 +181,101 @@ static func rows(sprite_name: String) -> Array:
 				"......KYYK......",
 				"......KKKK......",
 			]
+		"smith":
+			return [
+				"................",
+				"....KKKKKKKK....",
+				"...KOOOOOOOOK...",
+				"...KOSSSSSSOK...",
+				"...KSKSSSSKSK...",
+				"...KSSSSSSSSK...",
+				"...KOOSSSSOOK...",
+				"....KOOOOOOK....",
+				"...KRRRRRRRRK...",
+				"..KRRBBBBBBRRK..",
+				"..KRRBBBBBBRRK..",
+				"..KSRBBBBBBRSK..",
+				"...KKBBBBBBKK...",
+				"....KBBBBBBK....",
+				"....KDDKKDDK....",
+				"....KKKKKKKK....",
+			]
+		"shield":
+			return [
+				"................",
+				"..KKKKKKKKKKKK..",
+				"..KAAAAAAAAAAK..",
+				"..KABBBRRBBBAK..",
+				"..KABBBRRBBBAK..",
+				"..KABRRRRRRBAK..",
+				"..KABRRRRRRBAK..",
+				"..KABBBRRBBBAK..",
+				"..KABBBRRBBBAK..",
+				"...KABBRRBBAK...",
+				"...KABBRRBBAK...",
+				"....KABBBBAK....",
+				".....KABBAK.....",
+				"......KAAK......",
+				".......KK.......",
+				"................",
+			]
+		"helmet":
+			return [
+				"................",
+				"................",
+				".....KKKKKK.....",
+				"....KZZZZZAK....",
+				"...KZZZZZZAAK...",
+				"..KZZZZZZZAAAK..",
+				"..KZZZZZZZAAAK..",
+				"..KAAAAAAAAAAK..",
+				"..KZAKKKKKKAAK..",
+				"..KZAZZAZZAAAK..",
+				"..KZAZZAZZAAAK..",
+				"..KZAZZAZZAAAK..",
+				"..KAAAAAAAAAAK..",
+				"..KKKKKKKKKKKK..",
+				"................",
+				"................",
+			]
+		"anvil":
+			return [
+				"................",
+				"................",
+				"................",
+				"................",
+				"..KKKKKKKKKKKK..",
+				"KKAZZZZZZZZZZAK.",
+				".KKAAAAAAAAAAK..",
+				"...KKAAAAAAKK...",
+				".....KAAAAK.....",
+				".....KAAAAK.....",
+				"....KAAAAAAK....",
+				"...KAAAAAAAAK...",
+				"...KKKKKKKKKK...",
+				"..KBBBBBBBBBBK..",
+				"..KBDBBBBBDBBK..",
+				"..KKKKKKKKKKKK..",
+			]
+		"floor_stone":
+			return [
+				"ZZZZZZZZZZZZZZZK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAZAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAZAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAZAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"ZAAAAAAAAAAAAAAK",
+				"KKKKKKKKKKKKKKKK",
+			]
 	return []
 
 

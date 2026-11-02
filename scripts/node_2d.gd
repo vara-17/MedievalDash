@@ -10,7 +10,7 @@ enum Phase { LOGIN, MAP, LEVELS, PLAYING, RESULT }
 const LOGIN_WALL_ROWS := 6
 
 # Subclase de Level que se juega según el "gameplay" de cada escenario.
-var gameplays: Dictionary = {"tavern": TavernLevel}
+var gameplays: Dictionary = {"tavern": TavernLevel, "armory": ArmoryLevel}
 
 var save := SaveData.new()
 var venues: Array = []
@@ -72,6 +72,7 @@ func _set_phase(new_phase: int) -> void:
 		_free_level()
 	background.visible = phase == Phase.LOGIN or phase == Phase.PLAYING or phase == Phase.RESULT
 	background.wall_rows = LOGIN_WALL_ROWS if phase == Phase.LOGIN else 1
+	background.floor_sprite = Background.DEFAULT_FLOOR if phase == Phase.LOGIN else str(venue.get("floor", Background.DEFAULT_FLOOR))
 	login_screen.visible = phase == Phase.LOGIN
 	map_screen.visible = phase == Phase.MAP
 	level_select.visible = phase == Phase.LEVELS
@@ -98,7 +99,7 @@ func _start_level(index: int) -> void:
 	level.finished.connect(_on_level_finished)
 	level.quit_pressed.connect(_set_phase.bind(Phase.LEVELS))
 	add_child(level)
-	level.start(venue["levels"][index], index + 1)
+	level.start(venue, venue["levels"][index], index + 1)
 	_set_phase(Phase.PLAYING)
 
 

@@ -8,6 +8,7 @@
     "roof": "R",
     "map_pos": [190, 210],
     "requires": "",
+    "floor": "floor_wood",
     "levels": [
       {
         "name": "Primer día",
@@ -47,6 +48,49 @@
     "roof": "U",
     "map_pos": [450, 150],
     "requires": "taberna",
-    "levels": []
+    "floor": "floor_stone",
+    "items": {
+      "sword": {"name": "Espada", "buy": 12, "repair": 8},
+      "shield": {"name": "Escudo", "buy": 10, "repair": 7},
+      "helmet": {"name": "Casco", "buy": 8, "repair": 6}
+    },
+    "levels": [
+      {
+        "name": "Abrir la tienda",
+        "time": 60,
+        "counters": 2,
+        "items": ["sword", "shield"],
+        "repair_chance": 0.0,
+        "repair_time": 4,
+        "spawn_interval": 8,
+        "queue_patience": 30,
+        "counter_patience": 25,
+        "stars": [25, 45, 65]
+      },
+      {
+        "name": "Espadas melladas",
+        "time": 75,
+        "counters": 3,
+        "items": ["sword", "shield"],
+        "repair_chance": 0.4,
+        "repair_time": 4,
+        "spawn_interval": 6,
+        "queue_patience": 25,
+        "counter_patience": 22,
+        "stars": [45, 75, 100]
+      },
+      {
+        "name": "Antes del torneo",
+        "time": 90,
+        "counters": 3,
+        "items": ["sword", "shield", "helmet"],
+        "repair_chance": 0.5,
+        "repair_time": 3.5,
+        "spawn_interval": 5,
+        "queue_patience": 22,
+        "counter_patience": 20,
+        "stars": [70, 110, 150]
+      }
+    ]
   }
 ]
