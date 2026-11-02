@@ -1,7 +1,7 @@
 # Estado
 ## Hecho
 - Godot 4.7.2 exportando a Samsung
-- Repositorio en GitHub (vara-17/RandomDash)
+- Repositorio en GitHub (vara-17/MedievalDash)
 - Ambientación: edad media (tabernas, armerías...)
 - Scripts: table, customer, kitchen, waiter, save_data, sprite_factory, sprite_data, node_2d
 - Cola de espera, elegir mesa, camarero, barra con cola, niveles en JSON, menú y progreso local

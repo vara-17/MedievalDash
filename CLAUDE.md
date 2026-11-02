@@ -1,4 +1,4 @@
-# RandomDash
+# Medieval Dash
 Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes.
 
 ## Técnica
