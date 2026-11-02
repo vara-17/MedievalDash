@@ -101,7 +101,70 @@ static func rows(sprite_name: String) -> Array:
 				"BBBBBBBBBBBBBBBB",
 				"DDDDDDDDDDDDDDDD",
 			]
+		"torch":
+			return [
+				"................",
+				".......X........",
+				"......XX........",
+				"......XXX.......",
+				".....XXYXX......",
+				".....XYYYX......",
+				".....XYWYX......",
+				"......XYX.......",
+				".....KAAAK......",
+				"......KBK.......",
+				"......KBK.......",
+				"......KBK.......",
+				"....KAAAAAK.....",
+				"....KAKBKAK.....",
+				"....KAAAAAK.....",
+				"....KKKKKKK.....",
+			]
+		"window":
+			return [
+				"................",
+				".....KKKKK......",
+				"....KBBBBBK.....",
+				"...KBUUBUUBK....",
+				"..KBUUUBUUUBK...",
+				"..KBUYUBUUUBK...",
+				"..KBUUUBUUUBK...",
+				"..KBBBBBBBBBK...",
+				"..KBUUUBUUYBK...",
+				"..KBUUUBUUUBK...",
+				"..KBUUUBUUUBK...",
+				"..KBUUUBUUUBK...",
+				"..KBBBBBBBBBK...",
+				".KLLLLLLLLLLLK..",
+				".KKKKKKKKKKKKK..",
+				"................",
+			]
+		"banner":
+			return _banner()
 	return []
+
+
+# Estandarte de 16x24 colgado de una barra, con un rombo dorado y cola de golondrina.
+static func _banner() -> Array:
+	var plain := "..KXXXXXXXXXXK.."
+	var rows: Array = ["KAAAAAAAAAAAAAAK"]
+	for i in 5:
+		rows.append(plain)
+	rows.append_array([
+		"..KXXXXYYXXXXK..",
+		"..KXXXYYYYXXXK..",
+		"..KXXYYYYYYXXK..",
+		"..KXXXYYYYXXXK..",
+		"..KXXXXYYXXXXK..",
+	])
+	for i in 10:
+		rows.append(plain)
+	rows.append_array([
+		"..KXXXXKKXXXXK..",
+		"..KXXXK..KXXXK..",
+		"..KKKK....KKKK..",
+	])
+	return rows
 
 
 static func _table() -> Array:

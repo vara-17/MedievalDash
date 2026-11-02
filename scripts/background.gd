@@ -4,7 +4,11 @@ extends Node2D
 # Fondo del local: pared de piedra arriba, zócalo y suelo de madera.
 # Se dibuja una sola vez (y al cambiar el tamaño de la ventana), detrás del resto.
 
-const WALL_ROWS := 1
+# Filas de pared de piedra (32 px cada una): 1 en los niveles, más en la portada.
+var wall_rows: int = 1:
+	set(value):
+		wall_rows = value
+		queue_redraw()
 
 var floor_tex: Texture2D
 var wall_tex: Texture2D
@@ -23,7 +27,7 @@ func _ready() -> void:
 func _draw() -> void:
 	var view := get_viewport_rect().size
 	var y := 0.0
-	for i in WALL_ROWS:
+	for i in wall_rows:
 		y = _draw_row(wall_tex, y, view.x)
 	y = _draw_row(base_tex, y, view.x)
 	while y < view.y:

@@ -1,6 +1,6 @@
 extends Node2D
 
-enum Phase { MENU, PLAYING, RESULT }
+enum Phase { LOGIN, MENU, PLAYING, RESULT }
 
 const LEVELS_PATH := "res://data/levels.json"
 const DEFAULT_LEVEL := {
@@ -20,13 +20,17 @@ const MENU_COLUMNS := 3
 const MENU_BTN_SIZE := Vector2(160, 90)
 const MENU_GAP := 20.0
 const MENU_ORIGIN := Vector2(60, 110)
-const BTN_LOGIN := Rect2(470, 8, 160, 28)
+const BTN_ACCOUNT := Rect2(470, 8, 160, 28)
+const BTN_GOOGLE := Rect2(210, 222, 220, 40)
+const BTN_GUEST := Rect2(210, 274, 220, 40)
+const LOGIN_WALL_ROWS := 6
+const GAME_TITLE := "Medieval Dash"
 
 var save := SaveData.new()
 var levels: Array = []
 var level_index: int = 0
 var level: Dictionary = {}
-var phase: int = Phase.MENU
+var phase: int = Phase.LOGIN
 var time_left: float = 0.0
 var passed: bool = false
 var stars_earned: int = 0
@@ -39,7 +43,9 @@ var auth: Auth
 var auth_status: String = ""
 var cloud: CloudSave
 var sync_status: String = ""
+var loading_account: bool = false
 var background: Background
+var title_art: TitleArt
 var kitchen: Kitchen
 var waiter: Waiter
 var spawn_timer: float = 1.0
@@ -53,22 +59,32 @@ func _ready() -> void:
 	cloud.synced.connect(_on_synced)
 	cloud.sync_failed.connect(_on_sync_failed)
 	add_child(cloud)
+	background = Background.new()
+	add_child(background)
+	title_art = TitleArt.new()
+	add_child(title_art)
+	kitchen = Kitchen.new()
+	kitchen.position = Vector2(570, 180)
+	add_child(kitchen)
+	waiter = Waiter.new()
+	add_child(waiter)
+	_set_phase(Phase.LOGIN)
+	# Al final: si hay una sesión guardada, Auth emite signed_in al entrar en el árbol.
 	auth = Auth.new()
 	auth.signed_in.connect(_on_signed_in)
 	auth.signed_out.connect(_on_signed_out)
 	auth.sign_in_failed.connect(_on_sign_in_failed)
 	add_child(auth)
-	background = Background.new()
-	background.visible = false
-	add_child(background)
-	kitchen = Kitchen.new()
-	kitchen.position = Vector2(570, 180)
-	kitchen.visible = false
-	add_child(kitchen)
-	waiter = Waiter.new()
-	waiter.visible = false
-	add_child(waiter)
-	phase = Phase.MENU
+
+
+# Cambia de pantalla y muestra solo los nodos que le tocan.
+func _set_phase(new_phase: int) -> void:
+	phase = new_phase
+	background.visible = phase != Phase.MENU
+	background.wall_rows = LOGIN_WALL_ROWS if phase == Phase.LOGIN else 1
+	title_art.visible = phase == Phase.LOGIN
+	kitchen.visible = phase == Phase.PLAYING
+	waiter.visible = phase == Phase.PLAYING
 
 
 func _load_levels() -> void:
@@ -90,10 +106,7 @@ func _start_level(index: int) -> void:
 	score = 0
 	time_left = float(level["time"])
 	spawn_timer = 1.0
-	background.visible = true
-	kitchen.visible = true
-	waiter.visible = true
-	phase = Phase.PLAYING
+	_set_phase(Phase.PLAYING)
 
 
 func _clear_level() -> void:
@@ -115,10 +128,7 @@ func _clear_level() -> void:
 
 func _go_to_menu() -> void:
 	_clear_level()
-	background.visible = false
-	kitchen.visible = false
-	waiter.visible = false
-	phase = Phase.MENU
+	_set_phase(Phase.MENU)
 
 
 func _build_tables(count: int) -> void:
@@ -140,9 +150,7 @@ func _finish_level() -> void:
 	save.record(level_index, stars_earned)
 	_sync()
 	_clear_level()
-	kitchen.visible = false
-	waiter.visible = false
-	phase = Phase.RESULT
+	_set_phase(Phase.RESULT)
 
 
 func _has_next() -> bool:
@@ -241,6 +249,9 @@ func _input(event: InputEvent) -> void:
 		return
 	var p: Vector2 = event.position
 	match phase:
+		Phase.LOGIN:
+			_handle_login_tap(p)
+			return
 		Phase.MENU:
 			_handle_menu_tap(p)
 			return
@@ -272,17 +283,24 @@ func _input(event: InputEvent) -> void:
 	waiter.go_to(p, Callable())
 
 
+# Al iniciar sesión se espera a la primera sincronización (o a que falle, p. ej.
+# sin conexión) antes de pasar al menú, para mostrar ya el progreso de la cuenta.
 func _on_signed_in(_display_name: String) -> void:
 	auth_status = ""
 	_use_account_save(auth.uid)
+	if phase == Phase.LOGIN:
+		loading_account = true
 	_sync()
 
 
 func _on_signed_out() -> void:
 	auth_status = ""
 	sync_status = ""
+	loading_account = false
 	save = SaveData.new()
 	save.load_from_disk()
+	if phase == Phase.MENU:
+		_set_phase(Phase.LOGIN)
 
 
 # Pasa al progreso de la cuenta. Si hay progreso de invitado, se suma a esta
@@ -303,7 +321,10 @@ func _sync() -> void:
 		return
 	var uid := auth.uid
 	var token: String = await auth.get_valid_id_token()
-	if token == "" or uid != auth.uid:
+	if uid != auth.uid:
+		return
+	if token == "":
+		_on_sync_failed("Sin conexión")
 		return
 	cloud.sync(uid, token, save.best_stars.duplicate())
 
@@ -312,23 +333,41 @@ func _on_synced(uid: String, stars: Array) -> void:
 	if uid == auth.uid:
 		save.merge(stars)
 		sync_status = ""
+		_finish_loading_account()
 
 
 func _on_sync_failed(message: String) -> void:
 	sync_status = "Sin sincronizar: %s" % message
+	_finish_loading_account()
+
+
+func _finish_loading_account() -> void:
+	if loading_account:
+		loading_account = false
+		if phase == Phase.LOGIN:
+			_set_phase(Phase.MENU)
 
 
 func _on_sign_in_failed(message: String) -> void:
 	auth_status = message
 
 
+func _handle_login_tap(p: Vector2) -> void:
+	if auth.busy or loading_account:
+		return
+	if BTN_GOOGLE.has_point(p):
+		auth_status = ""
+		auth.sign_in()
+	elif BTN_GUEST.has_point(p):
+		auth_status = ""
+		_set_phase(Phase.MENU)
+
+
 func _handle_menu_tap(p: Vector2) -> void:
-	if BTN_LOGIN.has_point(p):
+	if BTN_ACCOUNT.has_point(p):
 		if auth.is_signed_in():
 			auth.sign_out()
-		else:
-			auth_status = ""
-			auth.sign_in()
+		_set_phase(Phase.LOGIN)
 		return
 	for i in levels.size():
 		if _level_button_rect(i).has_point(p) and save.is_unlocked(i):
@@ -338,8 +377,7 @@ func _handle_menu_tap(p: Vector2) -> void:
 
 func _handle_result_tap(p: Vector2) -> void:
 	if BTN_MENU.has_point(p):
-		background.visible = false
-		phase = Phase.MENU
+		_set_phase(Phase.MENU)
 	elif BTN_RETRY.has_point(p):
 		_start_level(level_index)
 	elif _has_next() and BTN_NEXT.has_point(p):
@@ -366,6 +404,9 @@ func _interact(c: Customer) -> void:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
+	if phase == Phase.LOGIN:
+		_draw_login_screen(font)
+		return
 	if phase == Phase.MENU:
 		draw_rect(get_viewport_rect(), Color("2b2d42"))
 		_draw_menu(font)
@@ -387,9 +428,9 @@ func _draw() -> void:
 
 func _draw_menu(font: Font) -> void:
 	var dark := Color("2b2d42")
-	draw_string(font, Vector2(0, 60), "RandomDash", HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
+	draw_string(font, Vector2(0, 60), GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, 640, 36)
 	draw_string(font, Vector2(0, 88), "Elige un nivel", HORIZONTAL_ALIGNMENT_CENTER, 640, 14)
-	_draw_login(font)
+	_draw_account(font)
 	for i in levels.size():
 		var r := _level_button_rect(i)
 		var unlocked := save.is_unlocked(i)
@@ -409,18 +450,43 @@ func _draw_menu(font: Font) -> void:
 			draw_string(font, r.position + Vector2(0, 74), "Bloqueado", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 12, Color.GRAY)
 
 
-func _draw_login(font: Font) -> void:
-	var label := "Entrar con Google"
+# Pantalla de inicio: el arte lo pone TitleArt; aquí van el título y los botones.
+func _draw_login_screen(font: Font) -> void:
+	var palette := SpriteFactory.PALETTE
+	var board := TitleArt.SIGN_RECT
+	var title_pos := Vector2(board.position.x, board.position.y + 47)
+	draw_string(font, title_pos + Vector2(2, 2), GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, 34, palette["K"])
+	draw_string(font, title_pos, GAME_TITLE, HORIZONTAL_ALIGNMENT_CENTER, board.size.x, 34, palette["Y"])
+	var google_label := "Entrar con Google"
 	if auth.busy:
-		label = "Conectando..."
-	elif auth.is_signed_in():
-		label = "Salir"
-		draw_string(font, Vector2(BTN_LOGIN.position.x - 300, BTN_LOGIN.position.y + 19), auth.display_name, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
-	draw_rect(BTN_LOGIN, Color("555770"))
-	draw_string(font, BTN_LOGIN.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_LOGIN.size.x, 13)
-	var status := auth_status if auth_status != "" else sync_status
-	if status != "":
-		draw_string(font, BTN_LOGIN.end + Vector2(-300, 14), status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
+		google_label = "Conectando..."
+	elif loading_account:
+		google_label = "Cargando progreso..."
+	_draw_wood_button(font, BTN_GOOGLE, google_label)
+	_draw_wood_button(font, BTN_GUEST, "Jugar como invitado")
+	if auth_status != "":
+		var y := BTN_GUEST.end.y + 8
+		draw_rect(Rect2(BTN_GUEST.position.x - 40, y, BTN_GUEST.size.x + 80, 22), Color(0, 0, 0, 0.6))
+		draw_string(font, Vector2(0, y + 16), auth_status, HORIZONTAL_ALIGNMENT_CENTER, 640, 13, Color("e07a5f"))
+
+
+func _draw_wood_button(font: Font, r: Rect2, label: String) -> void:
+	var palette := SpriteFactory.PALETTE
+	draw_rect(r, palette["K"])
+	draw_rect(r.grow(-2), palette["L"])
+	draw_rect(Rect2(r.position + Vector2(2, r.size.y - 6), Vector2(r.size.x - 4, 4)), palette["B"])
+	draw_string(font, r.position + Vector2(0, r.size.y / 2.0 + 5), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 15, palette["K"])
+
+
+# Esquina del menú: quién juega y botón para volver a la pantalla de inicio.
+func _draw_account(font: Font) -> void:
+	var who := auth.display_name if auth.is_signed_in() else "Invitado"
+	var label := "Cerrar sesión" if auth.is_signed_in() else "Iniciar sesión"
+	draw_string(font, Vector2(BTN_ACCOUNT.position.x - 300, BTN_ACCOUNT.position.y + 19), who, HORIZONTAL_ALIGNMENT_RIGHT, 292, 13)
+	draw_rect(BTN_ACCOUNT, Color("555770"))
+	draw_string(font, BTN_ACCOUNT.position + Vector2(0, 19), label, HORIZONTAL_ALIGNMENT_CENTER, BTN_ACCOUNT.size.x, 13)
+	if sync_status != "":
+		draw_string(font, BTN_ACCOUNT.end + Vector2(-300, 14), sync_status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, Color("e07a5f"))
 
 
 func _draw_result(font: Font) -> void:
