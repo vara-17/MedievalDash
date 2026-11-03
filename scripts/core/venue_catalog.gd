@@ -10,7 +10,8 @@ const DEFAULT_VENUE := {
 	"icon": "mug", "roof": "R", "map_pos": [320, 200], "requires": "",
 	"levels": [{
 		"name": "Nivel de prueba", "time": 60, "tables": 3,
-		"spawn_interval": 6, "queue_patience": 25, "table_patience": 20,
+		"queue_patience": 25, "table_patience": 20,
+		"customers": [{"at": 1}, {"at": 8}, {"at": 15}, {"at": 22}],
 		"stars": [20, 40, 60],
 	}],
 }

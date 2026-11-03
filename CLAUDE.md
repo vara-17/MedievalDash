@@ -21,7 +21,7 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
 - assets/sprites, assets/audio, assets/fonts (Pixelify Sans, licencia OFL en OFL.txt)
 - data/ escenarios y niveles (venues.json) y config en JSON
 - docs/ diseño (DISENO.md) y estado del proyecto (ESTADO.md)
-- tools/ scripts que generan assets (arte procedural)
+- tools/ scripts de apoyo: generar assets y medir la dificultad de los niveles (balance_levels.gd)
 - addons/ y plugins/ plugin de Google Sign-In (Godot y fuente Android)
 
 ## Reglas

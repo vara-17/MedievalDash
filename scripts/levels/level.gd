@@ -49,13 +49,20 @@ func _process(delta: float) -> void:
 	time_left -= delta
 	if time_left <= 0.0:
 		time_left = 0.0
-		running = false
-		_teardown()
-		queue_redraw()
-		finished.emit(score)
+		end_level()
 		return
 	_tick(delta)
 	queue_redraw()
+
+
+# Termina el nivel: al acabarse el tiempo o antes, si la subclase lo decide.
+func end_level() -> void:
+	if not running:
+		return
+	running = false
+	_teardown()
+	queue_redraw()
+	finished.emit(score)
 
 
 func handle_tap(p: Vector2) -> void:

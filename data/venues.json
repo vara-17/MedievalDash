@@ -12,30 +12,60 @@
     "levels": [
       {
         "name": "Primer día",
-        "time": 60,
+        "time": 80,
         "tables": 2,
-        "spawn_interval": 8,
         "queue_patience": 30,
         "table_patience": 25,
-        "stars": [20, 35, 50]
+        "stars": [20, 40, 50],
+        "customers": [
+          {"at": 1},
+          {"at": 8},
+          {"at": 16},
+          {"at": 24},
+          {"at": 33},
+          {"at": 42}
+        ]
       },
       {
         "name": "Hora punta",
-        "time": 75,
+        "time": 95,
         "tables": 3,
-        "spawn_interval": 6,
-        "queue_patience": 25,
-        "table_patience": 20,
-        "stars": [40, 65, 85]
+        "queue_patience": 30,
+        "table_patience": 25,
+        "stars": [40, 60, 75],
+        "customers": [
+          {"at": 1},
+          {"at": 5},
+          {"at": 10},
+          {"at": 18},
+          {"at": 24},
+          {"at": 30},
+          {"at": 40},
+          {"at": 48},
+          {"at": 56}
+        ]
       },
       {
         "name": "Servicio rápido",
-        "time": 90,
+        "time": 115,
         "tables": 3,
-        "spawn_interval": 5,
-        "queue_patience": 22,
-        "table_patience": 18,
-        "stars": [60, 90, 115]
+        "queue_patience": 28,
+        "table_patience": 22,
+        "stars": [50, 80, 100],
+        "customers": [
+          {"at": 1},
+          {"at": 4},
+          {"at": 8},
+          {"at": 14},
+          {"at": 20},
+          {"at": 26},
+          {"at": 32},
+          {"at": 40},
+          {"at": 47},
+          {"at": 54},
+          {"at": 61},
+          {"at": 68}
+        ]
       }
     ]
   },
@@ -59,37 +89,58 @@
         "name": "Abrir la tienda",
         "time": 60,
         "counters": 2,
-        "items": ["sword", "shield"],
-        "repair_chance": 0.0,
         "repair_time": 4,
-        "spawn_interval": 8,
         "queue_patience": 30,
         "counter_patience": 25,
-        "stars": [25, 45, 65]
+        "stars": [30, 45, 55],
+        "customers": [
+          {"at": 1, "item": "sword"},
+          {"at": 8, "item": "shield"},
+          {"at": 15, "item": "sword"},
+          {"at": 23, "item": "shield"},
+          {"at": 31, "item": "sword"},
+          {"at": 40, "item": "shield"}
+        ]
       },
       {
         "name": "Espadas melladas",
         "time": 75,
         "counters": 3,
-        "items": ["sword", "shield"],
-        "repair_chance": 0.4,
         "repair_time": 4,
-        "spawn_interval": 6,
-        "queue_patience": 25,
-        "counter_patience": 22,
-        "stars": [45, 75, 100]
+        "queue_patience": 30,
+        "counter_patience": 25,
+        "stars": [30, 50, 66],
+        "customers": [
+          {"at": 1, "item": "sword"},
+          {"at": 6, "item": "sword", "repair": true},
+          {"at": 12, "item": "shield"},
+          {"at": 19, "item": "shield", "repair": true},
+          {"at": 26, "item": "sword"},
+          {"at": 33, "item": "sword", "repair": true},
+          {"at": 41, "item": "shield"},
+          {"at": 50, "item": "sword"}
+        ]
       },
       {
         "name": "Antes del torneo",
         "time": 90,
         "counters": 3,
-        "items": ["sword", "shield", "helmet"],
-        "repair_chance": 0.5,
         "repair_time": 3.5,
-        "spawn_interval": 5,
-        "queue_patience": 22,
-        "counter_patience": 20,
-        "stars": [70, 110, 150]
+        "queue_patience": 28,
+        "counter_patience": 22,
+        "stars": [40, 60, 72],
+        "customers": [
+          {"at": 1, "item": "helmet"},
+          {"at": 5, "item": "sword", "repair": true},
+          {"at": 10, "item": "shield"},
+          {"at": 16, "item": "helmet", "repair": true},
+          {"at": 22, "item": "sword"},
+          {"at": 28, "item": "shield", "repair": true},
+          {"at": 35, "item": "helmet"},
+          {"at": 42, "item": "sword", "repair": true},
+          {"at": 50, "item": "shield"},
+          {"at": 58, "item": "helmet"}
+        ]
       }
     ]
   }

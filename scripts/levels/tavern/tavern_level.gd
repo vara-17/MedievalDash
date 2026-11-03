@@ -31,7 +31,7 @@ func _create_spots() -> Array[Spot]:
 	return result
 
 
-func _create_customer() -> ServiceCustomer:
+func _create_customer(_data: Dictionary) -> ServiceCustomer:
 	var c := TavernCustomer.new()
 	c.spot_patience = float(config["table_patience"])
 	return c

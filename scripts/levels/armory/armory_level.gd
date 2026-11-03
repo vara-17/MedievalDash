@@ -40,8 +40,19 @@ func _create_spots() -> Array[Spot]:
 	return result
 
 
+# Objetos a la venta en este nivel: los que algún cliente viene a comprar,
+# en orden de aparición.
+func _items_for_sale() -> Array:
+	var items: Array = []
+	for data in config["customers"]:
+		var item := str(data["item"])
+		if not data.get("repair", false) and not items.has(item):
+			items.append(item)
+	return items
+
+
 func _setup_stations() -> void:
-	var items: Array = config["items"]
+	var items := _items_for_sale()
 	for i in mini(items.size(), RACK_ROWS.size()):
 		var r := Rack.new()
 		r.item = str(items[i])
@@ -58,11 +69,10 @@ func _teardown_stations() -> void:
 	racks.clear()
 
 
-func _create_customer() -> ServiceCustomer:
+func _create_customer(data: Dictionary) -> ServiceCustomer:
 	var c := ArmoryCustomer.new()
-	var items: Array = config["items"]
-	c.item = str(items.pick_random())
-	c.repair = randf() < float(config["repair_chance"])
+	c.item = str(data["item"])
+	c.repair = bool(data.get("repair", false))
 	c.spot_patience = float(config["counter_patience"])
 	return c
 

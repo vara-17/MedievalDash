@@ -3,6 +3,9 @@ extends Level
 
 # Nivel de atender clientes: llegan por la puerta, esperan en cola, se les
 # lleva a un sitio libre (Spot) y quien atiende (Staff) va a servirles.
+# Los clientes de cada nivel son fijos: "customers" en venues.json dice cuándo
+# llega cada uno ("at", en segundos) y qué pide. Si la cola está llena, el
+# siguiente espera a que haya hueco. El nivel acaba cuando se han ido todos.
 # Aquí va lo común a la taberna, la armería...; cada subclase crea sus sitios,
 # sus clientes y sus puestos (barra, estantes, yunque) y decide cómo se sirve.
 
@@ -11,13 +14,18 @@ const DOOR_CENTER := Vector2(16, 180)
 const QUEUE_SLOTS := [Vector2(60, 110), Vector2(60, 180), Vector2(60, 250)]
 const STAFF_START := Vector2(120, 180)
 const TAP_RADIUS := 30.0
+# Separación de tono entre clientes seguidos, para que cada uno tenga su color.
+const HUE_STEP := 0.618
 
 var spots: Array[Spot] = []
 var queue: Array[ServiceCustomer] = []
 var customers: Array[ServiceCustomer] = []
 var selected: ServiceCustomer = null
 var staff: Staff
-var spawn_timer: float = 1.0
+# Clientes del nivel que aún no han entrado, en orden de llegada.
+var pending: Array = []
+var spawned: int = 0
+var elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -31,7 +39,10 @@ func _setup() -> void:
 	for s in _create_spots():
 		add_child(s)
 		spots.append(s)
-	spawn_timer = 1.0
+	pending = config["customers"].duplicate()
+	pending.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["at"]) < float(b["at"]))
+	spawned = 0
+	elapsed = 0.0
 	_setup_stations()
 
 
@@ -51,19 +62,17 @@ func _teardown() -> void:
 
 
 func _tick(delta: float) -> void:
-	spawn_timer -= delta
-	if spawn_timer <= 0.0:
-		if queue.size() < QUEUE_SLOTS.size():
-			_spawn_customer()
-			spawn_timer = float(config["spawn_interval"])
-		else:
-			spawn_timer = 1.0
+	elapsed += delta
+	while not pending.is_empty() and float(pending[0]["at"]) <= elapsed and queue.size() < QUEUE_SLOTS.size():
+		_spawn_customer(pending.pop_front())
 	for i in queue.size():
 		queue[i].queue_pos = QUEUE_SLOTS[i]
 
 
-func _spawn_customer() -> void:
-	var c := _create_customer()
+func _spawn_customer(data: Dictionary) -> void:
+	var c := _create_customer(data)
+	c.color = Color.from_hsv(fmod(spawned * HUE_STEP, 1.0), 0.5, 1.0)
+	spawned += 1
 	c.position = DOOR_POS
 	c.queue_pos = QUEUE_SLOTS[queue.size()]
 	var queue_patience := float(config["queue_patience"])
@@ -86,6 +95,8 @@ func _on_customer_left(c: ServiceCustomer, paid: bool) -> void:
 	queue.erase(c)
 	customers.erase(c)
 	c.queue_free()
+	if pending.is_empty() and customers.is_empty():
+		end_level.call_deferred()
 
 
 func _on_tap(p: Vector2) -> void:
@@ -178,8 +189,8 @@ func _teardown_stations() -> void:
 	pass
 
 
-# Cliente nuevo, con su pedido ya decidido.
-func _create_customer() -> ServiceCustomer:
+# Cliente nuevo a partir de su entrada en "customers" (qué pide, etc.).
+func _create_customer(_data: Dictionary) -> ServiceCustomer:
 	return ServiceCustomer.new()
 
 
