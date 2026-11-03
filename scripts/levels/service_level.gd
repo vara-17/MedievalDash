@@ -4,7 +4,8 @@ extends Level
 # Nivel de atender clientes: llegan por la puerta, esperan en cola, se les
 # lleva a un sitio libre (Spot) y quien atiende (Staff) va a servirles.
 # Los clientes de cada nivel son fijos: "customers" en venues.json dice cuándo
-# llega cada uno ("at", en segundos) y qué pide. Si la cola está llena, el
+# llega cada uno ("at", en segundos), qué pide y cuántos son ("party", 1 por
+# defecto). Si la cola está llena, el
 # siguiente espera a que haya hueco. El nivel acaba cuando se han ido todos.
 # Aquí va lo común a la taberna, la armería...; cada subclase crea sus sitios,
 # sus clientes y sus puestos (barra, estantes, yunque) y decide cómo se sirve.
@@ -71,6 +72,7 @@ func _tick(delta: float) -> void:
 
 func _spawn_customer(data: Dictionary) -> void:
 	var c := _create_customer(data)
+	c.party = int(data.get("party", 1))
 	c.color = Color.from_hsv(fmod(spawned * HUE_STEP, 1.0), 0.5, 1.0)
 	spawned += 1
 	c.position = DOOR_POS
@@ -108,7 +110,7 @@ func _on_tap(p: Vector2) -> void:
 			return
 	if selected != null:
 		for s in spots:
-			if s.customer == null and s.tap_rect().has_point(p):
+			if s.accepts(selected) and s.tap_rect().has_point(p):
 				_send_selected_to(s)
 				return
 		_deselect()
@@ -155,7 +157,7 @@ func _draw_scene() -> void:
 	UiDraw.sprite(self, SpriteFactory.make("door"), DOOR_CENTER)
 	if running and selected != null:
 		for s in spots:
-			if s.customer == null:
+			if s.accepts(selected):
 				draw_rect(s.tap_rect(), SpriteFactory.PALETTE["N"], false, 2.0)
 
 

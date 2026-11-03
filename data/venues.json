@@ -143,5 +143,79 @@
         ]
       }
     ]
+  },
+  {
+    "id": "posada",
+    "name": "Posada",
+    "goal": "Aloja a los viajeros",
+    "gameplay": "inn",
+    "icon": "bed_icon",
+    "roof": "P",
+    "map_pos": [540, 250],
+    "requires": "armeria",
+    "floor": "floor_wood",
+    "price": 15,
+    "levels": [
+      {
+        "name": "Primeros huéspedes",
+        "time": 50,
+        "beds": [1, 1],
+        "sleep_time": 6,
+        "make_time": 1.5,
+        "queue_patience": 30,
+        "pay_patience": 20,
+        "stars": [30, 60, 75],
+        "customers": [
+          {"at": 1},
+          {"at": 4},
+          {"at": 10},
+          {"at": 16},
+          {"at": 22},
+          {"at": 28}
+        ]
+      },
+      {
+        "name": "Día de feria",
+        "time": 55,
+        "beds": [1, 1, 1],
+        "sleep_time": 6,
+        "make_time": 1.5,
+        "queue_patience": 30,
+        "pay_patience": 20,
+        "stars": [45, 90, 100],
+        "customers": [
+          {"at": 1},
+          {"at": 3},
+          {"at": 6},
+          {"at": 11},
+          {"at": 16},
+          {"at": 21},
+          {"at": 26},
+          {"at": 31}
+        ]
+      },
+      {
+        "name": "Noche de tormenta",
+        "time": 65,
+        "beds": [1, 1, 1, 1],
+        "sleep_time": 7,
+        "make_time": 1.5,
+        "queue_patience": 28,
+        "pay_patience": 16,
+        "stars": [60, 105, 125],
+        "customers": [
+          {"at": 1},
+          {"at": 2},
+          {"at": 4},
+          {"at": 7},
+          {"at": 11},
+          {"at": 15},
+          {"at": 19},
+          {"at": 23},
+          {"at": 27},
+          {"at": 31}
+        ]
+      }
+    ]
   }
 ]

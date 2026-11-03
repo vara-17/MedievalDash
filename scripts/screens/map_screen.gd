@@ -21,7 +21,7 @@ const ROAD_STEP := 12.0
 const ROAD_BEND := 50.0
 const TREES := [
 	Vector2(40, 90), Vector2(80, 300), Vector2(330, 80), Vector2(300, 320),
-	Vector2(590, 260), Vector2(560, 90), Vector2(610, 320), Vector2(40, 200),
+	Vector2(610, 175), Vector2(560, 90), Vector2(380, 300), Vector2(40, 200),
 ]
 const TUFT_COUNT := 70
 const TUFT_SEED := 7

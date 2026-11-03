@@ -12,6 +12,12 @@ Llega > espera sitio > va al mostrador > pide comprar o reparar un objeto
 Precios de compra y reparación por objeto en data/venues.json
 - El herrero lleva un objeto cada vez. Si necesita las manos libres (recoger un objeto roto o un arreglo) y lleva uno nuevo del estante, lo devuelve solo; el de un cliente no lo suelta
 - Ir al yunque con un objeto nuevo del estante lo desecha siempre
+## Posada: ciclo de un huésped
+Llega > espera cama > se acuesta > duerme ("sleep_time", sin perder paciencia) > se despierta y deja la cama deshecha > paga y se va > el posadero hace la cama ("make_time", se queda quieto con una barra)
+- Una cama deshecha no admite a nadie hasta que se hace
+- Tocar una cama encola "cobrar si está despierto; si no hay nadie y está deshecha, hacerla" (dos toques seguidos = cobrar y hacer)
+- Precio por persona: "price" del escenario
+- Preparado para grupos: cada cliente puede traer "party" (1 o 2 personas) y cada cama tiene capacidad ("beds": [1, 2, ...]; 1 individual, 2 doble). Un grupo cabe en una cama de su capacidad o mayor; paga por persona. De momento todos los niveles son individuales
 ## Niveles fijos
 Cada nivel tiene su lista de clientes en data/venues.json ("customers"): cuándo llega cada uno ("at", segundos)
 y, en la armería, qué objeto ("item") y si es reparación ("repair"). Siempre salen igual, en el mismo orden.

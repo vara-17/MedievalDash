@@ -50,6 +50,8 @@ func _play_all() -> void:
 			for d in venue["levels"][li]["customers"]:
 				if venue["id"] == "taberna":
 					possible += 10
+				elif venue.has("price"):
+					possible += int(venue["price"]) * int(d.get("party", 1))
 				else:
 					possible += int(venue["items"][d["item"]]["repair" if d.get("repair", false) else "buy"])
 			while main.phase == main.Phase.PLAYING:
@@ -65,11 +67,11 @@ func _bot_step(lv) -> void:
 	# Sentar: en cuanto hay sitio libre
 	if not lv.queue.is_empty():
 		for sp in lv.spots:
-			if sp.customer == null:
+			if sp.accepts(lv.queue[0]):
 				_tap(lv.queue[0].position)
 				_tap(sp.position)
 				break
-	if not lv.staff.actions.is_empty():
+	if not lv.staff.actions.is_empty() or lv.staff.work_left > 0.0:
 		idle_since = -1.0
 		return
 	if idle_since < 0.0:
@@ -79,6 +81,8 @@ func _bot_step(lv) -> void:
 	idle_since = -1.0
 	if lv is TavernLevel:
 		_tavern(lv)
+	elif lv is InnLevel:
+		_inn(lv)
 	else:
 		_armory(lv)
 
@@ -117,3 +121,11 @@ func _armory(lv) -> void:
 		for r in lv.racks:
 			if r.item == c.item:
 				_tap(r.position); return
+
+func _inn(lv) -> void:
+	for c in _at_spot(lv):
+		if c.is_paying():
+			_tap(c.spot.position); return
+	for sp in lv.spots:
+		if sp.customer == null and not sp.made:
+			_tap(sp.position); return

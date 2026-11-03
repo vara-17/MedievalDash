@@ -2,12 +2,19 @@ class_name Spot
 extends Node2D
 
 # Sitio donde se atiende a un cliente: mesa en la taberna, mostrador en la
-# armería... Tiene un hueco para el cliente y otro para quien le atiende.
+# armería, cama en la posada... Tiene un hueco para el cliente y otro para quien
+# le atiende. "capacity" es cuántas personas caben (un grupo de 2 necesita 2).
 
 const TAP_MARGIN := Vector2(12, 12)
 
 var size: Vector2 = Vector2(32, 32)
 var customer: ServiceCustomer = null
+var capacity: int = 1
+
+
+# Si se puede llevar aquí al cliente "c" (cola): libre y con sitio para su grupo.
+func accepts(c: ServiceCustomer) -> bool:
+	return customer == null and c.party <= capacity
 
 
 # Zona que responde al toque, algo mayor que el dibujo.

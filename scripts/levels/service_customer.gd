@@ -13,11 +13,15 @@ const SPEED := 120.0
 const HINT_POS := Vector2(-50, 30)
 const HINT_WIDTH := 100.0
 const PATIENCE_BAR := Rect2(-17, -31, 34, 7)
+# Dónde se pinta la segunda persona de un grupo de 2, detrás de la primera.
+const PARTNER_OFFSET := Vector2(10, -6)
 
 var state: int = State.QUEUED
 var spot: Spot = null
 var queue_pos: Vector2
 var selected: bool = false
+# Personas del grupo (1 o 2); se pintan juntas y ocupan un sitio con esa capacidad.
+var party: int = 1
 var color: Color = Color.from_hsv(randf(), 0.5, 1.0)
 var max_patience: float = 25.0
 var patience: float = 25.0
@@ -77,6 +81,8 @@ func _draw() -> void:
 	if selected:
 		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 24, SpriteFactory.PALETTE["N"], 2.0)
 	if body_tex != null:
+		if party > 1:
+			draw_texture_rect(body_tex, SpriteFactory.rect_centered(body_tex, PARTNER_OFFSET), false)
 		draw_texture_rect(body_tex, SpriteFactory.rect_centered(body_tex, Vector2.ZERO), false)
 	if state == State.WALKING:
 		return

@@ -56,6 +56,41 @@ static func rows(sprite_name: String) -> Array:
 			]
 		"table":
 			return _table()
+		"innkeeper":
+			return _recolor(rows("waiter"), {"U": "G", "D": "B"})
+		"bed":
+			return _bed(1, "made", 0)
+		"bed_unmade":
+			return _bed(1, "unmade", 0)
+		"bed_sleep":
+			return _bed(1, "sleep", 1)
+		"bed_double":
+			return _bed(2, "made", 0)
+		"bed_double_unmade":
+			return _bed(2, "unmade", 0)
+		"bed_double_sleep1":
+			return _bed(2, "sleep", 1)
+		"bed_double_sleep2":
+			return _bed(2, "sleep", 2)
+		"bed_icon":
+			return [
+				"................",
+				"................",
+				"................",
+				"KK..............",
+				"KLK.............",
+				"KLK.KKKKK.......",
+				"KLKKWWWWWKKKKKK.",
+				"KLKWWWWWKXXXXXXK",
+				"KLKXXXXXXXXXXXXK",
+				"KLKXXXXXXXXXXXXK",
+				"KLKKKKKKKKKKKKKK",
+				"KLKBBBBBBBBBBBBK",
+				"KLKKKKKKKKKKKKKK",
+				"KBK..........KBK",
+				"KKK..........KKK",
+				"................",
+			]
 		"floor_wood":
 			return [
 				"BBBBBBBBBBBDBBBB",
@@ -434,6 +469,65 @@ static func _table() -> Array:
 	for i in 3:
 		rows.append(".." + "KDDK" + ".".repeat(20) + "KDDK" + "..")
 	rows.append(".." + "KKKK" + ".".repeat(20) + "KKKK" + "..")
+	return rows
+
+
+# Copia de un sprite cambiando unas letras por otras ({"U": "G"}).
+static func _recolor(source: Array, swaps: Dictionary) -> Array:
+	var result: Array = []
+	for row in source:
+		var r := ""
+		for ch in String(row):
+			r += swaps.get(ch, ch)
+		result.append(r)
+	return result
+
+
+# Cama vista desde arriba, 24 de alto: cabecero, almohadas, manta (X) y pie.
+# capacity 1 = 16 de ancho y una almohada; 2 = 26 de ancho y dos.
+# state: "made" (sábana doblada), "sleep" (cabezas en la almohada, manta
+# subida) o "unmade" (manta arrugada y apartada).
+static func _bed(capacity: int, state: String, sleepers: int) -> Array:
+	var w := 26 if capacity > 1 else 16
+	var inner := w - 4
+	var pillows: Array = [Vector2i(1, 10)] if capacity == 1 else [Vector2i(1, 9), Vector2i(12, 9)]
+	var heads: Array = []
+	if sleepers == 1:
+		heads.append(floori(inner / 2.0) - 3)
+	elif sleepers == 2:
+		for pw in pillows:
+			heads.append(pw.x + floori(pw.y / 2.0) - 3)
+	var head_rows := ["?YYYY?", "YYYYYY", "YSSSSY", "SKSSKS", "SSSSSS"]
+	var rows: Array = ["K".repeat(w), "K" + "L".repeat(w - 2) + "K", "K" + "B".repeat(w - 2) + "K"]
+	for y in range(3, 22):
+		var row := ""
+		for x in inner:
+			var ch := "Z"
+			if y <= 7:
+				var shift := 1 if state == "unmade" else 0
+				for pw in pillows:
+					if x >= pw.x + shift and x < pw.x + pw.y + shift and y >= 4 and y <= 6:
+						ch = "A" if y == 6 else "W"
+			else:
+				match state:
+					"made":
+						ch = "W" if y <= 9 else "X"
+					"sleep":
+						ch = "X"
+					_:
+						# Manta apartada en diagonal hacia los pies.
+						ch = "X" if x < floori((y - 8) * inner / 10.0) + 2 else "Z"
+						if ch == "Z" and (x + y) % 7 == 0:
+							ch = "A"
+			for hx in heads:
+				if y >= 3 and y <= 7 and x >= hx and x < hx + 6:
+					var h: String = head_rows[y - 3][x - hx]
+					if h != "?":
+						ch = h
+			row += ch
+		rows.append("KB" + row + "BK")
+	rows.append("K" + "B".repeat(w - 2) + "K")
+	rows.append("K".repeat(w))
 	return rows
 
 
