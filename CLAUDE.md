@@ -17,7 +17,7 @@ Juego móvil 2D pixel art estilo Diner Dash. Niveles cortos de servir a clientes
   - art/ sprites en texto, SpriteFactory y decorados (fondo, portada)
   - ui/ piezas de interfaz comunes (UiDraw)
   - screens/ una por pantalla: login, mapa, niveles, resultado
-  - levels/ jugabilidad: level.gd es la base (tiempo, puntos, marcador); service_level.gd, service_customer.gd, spot.gd y staff.gd son lo común de atender clientes (cola, sitios, quien atiende); una subcarpeta por tipo de escenario (tavern/, armory/, inn/)
+  - levels/ jugabilidad: level.gd es la base (tiempo, puntos, marcador); service_level.gd, service_customer.gd, spot.gd, staff.gd y rack.gd son lo común de atender clientes (cola, sitios, quien atiende, estantes); una subcarpeta por tipo de escenario (tavern/, armory/, inn/, infirmary/)
 - assets/sprites, assets/audio, assets/fonts (Pixelify Sans, licencia OFL en OFL.txt)
 - data/ escenarios y niveles (venues.json) y config en JSON
 - docs/ diseño (DISENO.md) y estado del proyecto (ESTADO.md)

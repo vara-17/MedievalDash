@@ -1,8 +1,8 @@
 class_name Rack
 extends Node2D
 
-# Estante con un tipo de objeto a la venta (espada, escudo...). El herrero
-# coge de aquí lo que piden los clientes que compran.
+# Estante con un tipo de objeto (espada, poción...). Quien atiende coge de
+# aquí lo que piden los clientes. Lo usan la armería y la enfermería.
 
 const RECT := Rect2(-26, -30, 52, 60)
 
@@ -20,7 +20,7 @@ func contains_point(p: Vector2) -> bool:
 	return RECT.grow(6).has_point(p - position)
 
 
-func smith_position() -> Vector2:
+func staff_position() -> Vector2:
 	return position + Vector2(-48, 0)
 
 

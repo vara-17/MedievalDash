@@ -13,7 +13,7 @@ const LEVELS_WALL_ROWS := 4
 const FONT_PATH := "res://assets/fonts/PixelifySans.ttf"
 
 # Subclase de Level que se juega según el "gameplay" de cada escenario.
-var gameplays: Dictionary = {"tavern": TavernLevel, "armory": ArmoryLevel, "inn": InnLevel}
+var gameplays: Dictionary = {"tavern": TavernLevel, "armory": ArmoryLevel, "inn": InnLevel, "infirmary": InfirmaryLevel}
 
 var save := SaveData.new()
 var venues: Array = []

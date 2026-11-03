@@ -50,6 +50,10 @@ func _play_all() -> void:
 			for d in venue["levels"][li]["customers"]:
 				if venue["id"] == "taberna":
 					possible += 10
+				elif d.has("treat"):
+					possible += int(venue["items"][d["item"]]["treat" if d["treat"] else "buy"])
+				elif venue["id"] == "enfermeria":
+					possible += int(venue["items"][d["item"]]["buy"])
 				elif venue.has("price"):
 					possible += int(venue["price"]) * int(d.get("party", 1))
 				else:
@@ -64,8 +68,17 @@ func _play_all() -> void:
 				str(cfg["stars"]), lv.time_left, int(cfg["time"])])
 
 func _bot_step(lv) -> void:
-	# Sentar: en cuanto hay sitio libre
-	if not lv.queue.is_empty():
+	# Sentar: en cuanto hay sitio libre (en la enfermería, solo el del mostrador
+	# que viene a curarse)
+	if lv is InfirmaryLevel:
+		var front = lv._at_desk()
+		if front != null and front.treat:
+			for sp in lv.spots:
+				if sp.accepts(front):
+					_tap(front.position)
+					_tap(sp.position)
+					break
+	elif not lv.queue.is_empty():
 		for sp in lv.spots:
 			if sp.accepts(lv.queue[0]):
 				_tap(lv.queue[0].position)
@@ -83,6 +96,8 @@ func _bot_step(lv) -> void:
 		_tavern(lv)
 	elif lv is InnLevel:
 		_inn(lv)
+	elif lv is InfirmaryLevel:
+		_infirmary(lv)
 	else:
 		_armory(lv)
 
@@ -129,3 +144,28 @@ func _inn(lv) -> void:
 	for sp in lv.spots:
 		if sp.customer == null and not sp.made:
 			_tap(sp.position); return
+
+func _infirmary(lv) -> void:
+	var h = lv.staff
+	var patients := _at_spot(lv)
+	for c in patients:
+		if c.is_paying():
+			_tap(c.spot.position); return
+	var front = lv._at_desk()
+	var buyer = front if front != null and not front.treat else null
+	if h.carrying != "":
+		for c in patients:
+			if c.is_waiting_medicine() and c.item == h.carrying:
+				_tap(c.spot.position); return
+		if buyer != null and buyer.item == h.carrying:
+			_tap(lv.desk.position); return
+	var wanted := []
+	for c in patients:
+		if c.is_waiting_medicine():
+			wanted.append(c.item)
+	if buyer != null:
+		wanted.append(buyer.item)
+	for item in wanted:
+		for r in lv.shelves:
+			if r.item == item:
+				_tap(r.position); return

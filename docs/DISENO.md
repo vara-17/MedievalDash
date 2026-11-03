@@ -18,6 +18,14 @@ Llega > espera cama > se acuesta > duerme ("sleep_time", sin perder paciencia) >
 - Tocar una cama encola "cobrar si está despierto; si no hay nadie y está deshecha, hacerla" (dos toques seguidos = cobrar y hacer)
 - Precio por persona: "price" del escenario
 - Preparado para grupos: cada cliente puede traer "party" (1 o 2 personas) y cada cama tiene capacidad ("beds": [1, 2, ...]; 1 individual, 2 doble). Un grupo cabe en una cama de su capacidad o mayor; paga por persona. De momento todos los niveles son individuales
+## Enfermería: cola con mostrador
+La cola acaba en un mostrador y solo se atiende al primero (el que está en el mostrador); los demás esperan.
+Al llegar al mostrador su paciencia pasa a "desk_patience".
+- Comprar: la curandera coge la medicina del estante y la entrega en el mostrador > paga ("buy") y se va
+- Curarse ("treat": true): se le lleva a una camilla libre > tumbado espera su medicina ("stretcher_patience") > se le da > se recupera ("recover_time", sin perder paciencia) > se levanta > paga ("treat") y se va
+- Si el del mostrador viene a curarse y no hay camilla libre, bloquea la cola
+- La curandera lleva una medicina cada vez; al coger otra deja la que llevaba
+- Los estantes son las medicinas que pide algún cliente del nivel
 ## Niveles fijos
 Cada nivel tiene su lista de clientes en data/venues.json ("customers"): cuándo llega cada uno ("at", segundos)
 y, en la armería, qué objeto ("item") y si es reparación ("repair"). Siempre salen igual, en el mismo orden.

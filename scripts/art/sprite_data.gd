@@ -56,6 +56,69 @@ static func rows(sprite_name: String) -> Array:
 			]
 		"table":
 			return _table()
+		"potion":
+			return [
+				"................",
+				"......KKKK......",
+				"......KLLK......",
+				"......KKKK......",
+				"......KZZK......",
+				"......KZZK......",
+				".....KKZZKK.....",
+				"....KZZZZZZK....",
+				"...KRRRRRRRRK...",
+				"...KRWRRRRRRK...",
+				"...KRWRRRRRRK...",
+				"...KRRRRRRRRK...",
+				"...KRRRRRRRRK...",
+				"....KRRRRRRK....",
+				".....KKKKKK.....",
+				"................",
+			]
+		"herbs":
+			return [
+				"................",
+				"....K.....K.....",
+				"...KNK...KNK....",
+				"...KNGK.KGNK..K.",
+				"....KNGKGNK..KNK",
+				".K...KNGNK..KNGK",
+				"KNK..KGNGK.KGNK.",
+				"KGNKKNGNGNKGNK..",
+				".KGNNGNGNGNNK...",
+				"..KKGNGNGNKK....",
+				"....KYYYYK......",
+				".....KBBK.......",
+				".....KBBK.......",
+				".....KBBK.......",
+				".....KKKK.......",
+				"................",
+			]
+		"bandage":
+			return [
+				"................",
+				"................",
+				"................",
+				"....KKKKKKK.....",
+				"...KWWWWWWWK....",
+				"..KWZWWWWWWWK...",
+				"..KWZWWKKWWWK...",
+				"..KWZWKAAKWWK...",
+				"..KWZWKAAKWWK...",
+				"..KWZWWKKWWWKKKK",
+				"..KWZWWWWWWWWWWK",
+				"...KWWWWWWWKKKKK",
+				"....KKKKKKK.....",
+				"................",
+				"................",
+				"................",
+			]
+		"healer":
+			return _recolor(rows("waiter"), {"U": "C", "D": "Y"})
+		"stretcher":
+			return _stretcher(false)
+		"stretcher_patient":
+			return _stretcher(true)
 		"innkeeper":
 			return _recolor(rows("waiter"), {"U": "G", "D": "B"})
 		"bed":
@@ -528,6 +591,34 @@ static func _bed(capacity: int, state: String, sleepers: int) -> Array:
 		rows.append("KB" + row + "BK")
 	rows.append("K" + "B".repeat(w - 2) + "K")
 	rows.append("K".repeat(w))
+	return rows
+
+
+# Camilla de 16x26 vista desde arriba: dos varas con asas y lona. Con
+# paciente: cabeza sobre la lona y manta (X) hasta el cuello.
+static func _stretcher(patient: bool) -> Array:
+	var head_rows := ["?YYYY?", "YYYYYY", "YSSSSY", "SKSSKS", "SSSSSS"]
+	var rows: Array = []
+	for y in 26:
+		var inner := ""
+		if y < 2 or y > 23:
+			inner = ".".repeat(10)
+		elif y == 2 or y == 23:
+			inner = "K".repeat(10)
+		else:
+			for x in 10:
+				var ch := "W" if x > 0 and x < 9 else "Z"
+				if patient:
+					if y >= 3 and y <= 7 and x >= 2 and x < 8:
+						var h: String = head_rows[y - 3][x - 2]
+						if h != "?":
+							ch = h
+					elif y >= 8:
+						ch = "X"
+				elif y >= 3 and y <= 5 and x >= 2 and x < 8:
+					ch = "Z"
+				inner += ch
+		rows.append(".KB" + inner + "BK.")
 	return rows
 
 

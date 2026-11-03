@@ -217,5 +217,83 @@
         ]
       }
     ]
+  },
+  {
+    "id": "enfermeria",
+    "name": "Enfermería",
+    "goal": "Vende medicinas y cura a los heridos",
+    "gameplay": "infirmary",
+    "icon": "potion",
+    "roof": "W",
+    "map_pos": [330, 268],
+    "requires": "posada",
+    "floor": "floor_stone",
+    "items": {
+      "potion": {"name": "Poción", "buy": 8, "treat": 16},
+      "herbs": {"name": "Hierbas", "buy": 6, "treat": 14},
+      "bandage": {"name": "Vendas", "buy": 5, "treat": 12}
+    },
+    "levels": [
+      {
+        "name": "Primeros auxilios",
+        "time": 55,
+        "stretchers": 1,
+        "recover_time": 5,
+        "queue_patience": 30,
+        "desk_patience": 25,
+        "stretcher_patience": 25,
+        "stars": [20, 35, 45],
+        "customers": [
+          {"at": 1, "item": "potion"},
+          {"at": 7, "item": "bandage", "treat": true},
+          {"at": 13, "item": "potion"},
+          {"at": 19, "item": "bandage"},
+          {"at": 25, "item": "potion", "treat": true},
+          {"at": 32, "item": "bandage"}
+        ]
+      },
+      {
+        "name": "Fiebre en el pueblo",
+        "time": 70,
+        "stretchers": 2,
+        "recover_time": 5,
+        "queue_patience": 30,
+        "desk_patience": 25,
+        "stretcher_patience": 25,
+        "stars": [30, 55, 70],
+        "customers": [
+          {"at": 1, "item": "herbs", "treat": true},
+          {"at": 5, "item": "potion"},
+          {"at": 10, "item": "herbs"},
+          {"at": 15, "item": "potion", "treat": true},
+          {"at": 20, "item": "bandage"},
+          {"at": 25, "item": "herbs", "treat": true},
+          {"at": 31, "item": "potion"},
+          {"at": 37, "item": "bandage", "treat": true}
+        ]
+      },
+      {
+        "name": "Tras la batalla",
+        "time": 80,
+        "stretchers": 3,
+        "recover_time": 5,
+        "queue_patience": 30,
+        "desk_patience": 25,
+        "stretcher_patience": 25,
+        "stars": [35, 65, 84],
+        "customers": [
+          {"at": 1, "item": "bandage", "treat": true},
+          {"at": 4, "item": "potion"},
+          {"at": 8, "item": "bandage", "treat": true},
+          {"at": 12, "item": "herbs"},
+          {"at": 16, "item": "potion", "treat": true},
+          {"at": 20, "item": "bandage"},
+          {"at": 24, "item": "herbs", "treat": true},
+          {"at": 29, "item": "potion"},
+          {"at": 34, "item": "bandage", "treat": true},
+          {"at": 39, "item": "herbs"}
+        ]
+      }
+    ]
   }
 ]

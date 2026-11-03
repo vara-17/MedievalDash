@@ -80,7 +80,7 @@ func _create_customer(data: Dictionary) -> ServiceCustomer:
 func _tap_station(p: Vector2) -> bool:
 	for r in racks:
 		if r.contains_point(p):
-			staff.add_action(r.smith_position(), _take_from_rack.bind(r))
+			staff.add_action(r.staff_position(), _take_from_rack.bind(r))
 			return true
 	if anvil.contains_point(p):
 		staff.add_action(anvil.smith_position(), _use_anvil)

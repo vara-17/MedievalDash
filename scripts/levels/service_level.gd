@@ -106,7 +106,8 @@ func _on_tap(p: Vector2) -> void:
 		return
 	for c in queue:
 		if p.distance_to(c.position) <= TAP_RADIUS:
-			_select(c)
+			if _can_select(c):
+				_select(c)
 			return
 	if selected != null:
 		for s in spots:
@@ -194,6 +195,11 @@ func _teardown_stations() -> void:
 # Cliente nuevo a partir de su entrada en "customers" (qué pide, etc.).
 func _create_customer(_data: Dictionary) -> ServiceCustomer:
 	return ServiceCustomer.new()
+
+
+# Si se puede elegir a este cliente de la cola para llevarlo a un sitio.
+func _can_select(_c: ServiceCustomer) -> bool:
+	return true
 
 
 # Si el toque es sobre un puesto, añade la acción de ir allí y devuelve true.
