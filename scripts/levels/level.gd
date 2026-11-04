@@ -3,12 +3,12 @@ extends Node2D
 
 # Base de la jugabilidad de un nivel. Cada tipo de escenario (taberna, armería...)
 # es una subclase que rellena _setup, _teardown, _tick, _on_tap y _draw_scene.
-# Aquí va lo común: cuenta atrás, puntos, marcador y botón para salir.
+# Aquí va lo común: cuenta atrás, puntos, marcador y botón de pausa.
 
 signal finished(score: int)
-signal quit_pressed
+signal pause_pressed
 
-const BTN_QUIT := Rect2(290, 6, 60, 28)
+const BTN_PAUSE := Rect2(285, 6, 70, 28)
 const HUD_SCORE := Rect2(4, 3, 266, 34)
 const HUD_BAR := Rect2(152, 13, 106, 14)
 const HUD_TIME := Rect2(530, 3, 106, 34)
@@ -65,13 +65,16 @@ func end_level() -> void:
 	finished.emit(score)
 
 
+# Congela el nivel (tiempo, clientes, personaje) o lo reanuda. Se sigue viendo.
+func set_paused(paused: bool) -> void:
+	process_mode = Node.PROCESS_MODE_DISABLED if paused else Node.PROCESS_MODE_INHERIT
+
+
 func handle_tap(p: Vector2) -> void:
 	if not running:
 		return
-	if BTN_QUIT.has_point(p):
-		running = false
-		_teardown()
-		quit_pressed.emit()
+	if BTN_PAUSE.has_point(p):
+		pause_pressed.emit()
 		return
 	_on_tap(p)
 
@@ -82,7 +85,7 @@ func _draw() -> void:
 
 
 # Marcador: tablón con nivel, monedas y barra hacia las estrellas; botón de
-# salir; tablón con el tiempo.
+# pausa; tablón con el tiempo.
 func _draw_hud() -> void:
 	var palette := SpriteFactory.PALETTE
 	var thresholds: Array = config["stars"]
@@ -96,7 +99,7 @@ func _draw_hud() -> void:
 		var x := HUD_BAR.position.x + HUD_BAR.size.x * float(t) / top
 		UiDraw.small_star(self, Vector2(x, HUD_BAR.get_center().y), score >= int(t))
 	if running:
-		UiDraw.wood_button(self, BTN_QUIT, "Menú")
+		UiDraw.wood_button(self, BTN_PAUSE, "Pausa")
 	UiDraw.board(self, HUD_TIME)
 	UiDraw.sprite(self, SpriteFactory.make("hourglass"), HUD_TIME.position + Vector2(18, 17))
 	var seconds := ceili(time_left)

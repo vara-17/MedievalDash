@@ -3,9 +3,11 @@ extends Node2D
 # Escena principal. Crea las pantallas y el nivel, decide cuál se ve y las
 # comunica por señales. También lleva la cuenta (Auth), el progreso (SaveData)
 # y su sincronización con la nube (CloudSave).
-# Flujo: inicio > mapa > niveles del escenario > nivel > resultado.
+# Flujo: inicio > mapa > niveles del escenario > nivel (> pausa) > resultado.
+# El botón atrás de Android (o Escape) vuelve a la pantalla anterior; en el
+# nivel abre la pausa. Si la app pasa a segundo plano, el nivel se pausa.
 
-enum Phase { LOGIN, MAP, LEVELS, PLAYING, RESULT }
+enum Phase { LOGIN, MAP, LEVELS, PLAYING, PAUSED, RESULT }
 
 const LOGIN_WALL_ROWS := 6
 const LEVELS_WALL_ROWS := 4
@@ -30,6 +32,7 @@ var map_screen: MapScreen
 var level_select: LevelSelectScreen
 var level: Level = null
 var result_screen: ResultScreen
+var pause_screen: PauseScreen
 
 
 func _ready() -> void:
@@ -61,6 +64,11 @@ func _ready() -> void:
 	result_screen.retry_pressed.connect(func() -> void: _start_level(level_index))
 	result_screen.next_pressed.connect(func() -> void: _start_level(level_index + 1))
 	add_child(result_screen)
+	pause_screen = PauseScreen.new()
+	pause_screen.resume_pressed.connect(_resume)
+	pause_screen.retry_pressed.connect(func() -> void: _start_level(level_index))
+	pause_screen.quit_pressed.connect(_set_phase.bind(Phase.LEVELS))
+	add_child(pause_screen)
 	_set_phase(Phase.LOGIN)
 	# Al final: si hay una sesión guardada, Auth emite signed_in al entrar en el árbol.
 	auth = Auth.new()
@@ -73,7 +81,7 @@ func _ready() -> void:
 # Cambia de pantalla y muestra solo los nodos que le tocan.
 func _set_phase(new_phase: int) -> void:
 	phase = new_phase
-	if phase != Phase.PLAYING and phase != Phase.RESULT:
+	if phase != Phase.PLAYING and phase != Phase.PAUSED and phase != Phase.RESULT:
 		_free_level()
 	background.visible = phase != Phase.MAP
 	match phase:
@@ -88,6 +96,7 @@ func _set_phase(new_phase: int) -> void:
 	map_screen.visible = phase == Phase.MAP
 	level_select.visible = phase == Phase.LEVELS
 	result_screen.visible = phase == Phase.RESULT
+	pause_screen.visible = phase == Phase.PAUSED
 	if phase == Phase.MAP:
 		map_screen.refresh(venues, save)
 	elif phase == Phase.LEVELS:
@@ -108,10 +117,46 @@ func _start_level(index: int) -> void:
 	level_index = index
 	level = gameplays[gameplay].new()
 	level.finished.connect(_on_level_finished)
-	level.quit_pressed.connect(_set_phase.bind(Phase.LEVELS))
+	level.pause_pressed.connect(_pause)
 	add_child(level)
 	level.start(venue, venue["levels"][index], index + 1)
 	_set_phase(Phase.PLAYING)
+
+
+func _pause() -> void:
+	if phase != Phase.PLAYING:
+		return
+	level.set_paused(true)
+	pause_screen.show_for(str(venue["levels"][level_index]["name"]))
+	_set_phase(Phase.PAUSED)
+
+
+func _resume() -> void:
+	level.set_paused(false)
+	_set_phase(Phase.PLAYING)
+
+
+# Botón atrás: pantalla anterior; en el nivel, pausa; en el inicio y el mapa, salir.
+func _go_back() -> void:
+	match phase:
+		Phase.LOGIN, Phase.MAP:
+			get_tree().quit()
+		Phase.LEVELS:
+			_set_phase(Phase.MAP)
+		Phase.PLAYING:
+			_pause()
+		Phase.PAUSED:
+			_resume()
+		Phase.RESULT:
+			_set_phase(Phase.LEVELS)
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			_go_back()
+		NOTIFICATION_APPLICATION_PAUSED:
+			_pause()
 
 
 func _free_level() -> void:
@@ -137,6 +182,9 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+		_go_back()
+		return
 	if not (event is InputEventMouseButton and event.pressed):
 		return
 	var p: Vector2 = event.position
@@ -149,6 +197,8 @@ func _input(event: InputEvent) -> void:
 			level_select.handle_tap(p)
 		Phase.PLAYING:
 			level.handle_tap(p)
+		Phase.PAUSED:
+			pause_screen.handle_tap(p)
 		Phase.RESULT:
 			result_screen.handle_tap(p)
 

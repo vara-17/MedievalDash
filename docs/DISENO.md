@@ -46,6 +46,10 @@ Estrellas sobre las monedas posibles: 1 = 40%, 2 = 65%, 3 = 85% (fácil), 88% (n
 Paciencia más baja y llegadas más seguidas cuanto más difícil; los niveles difíciles usan más sitios (4 mesas, 4 mostradores...).
 tools/balance_levels.gd mide todos los niveles (con --open, sin límite de tiempo, da cuánto tarda el perfecto; el tiempo
 del nivel es eso / (1 - sobra)). Los fáciles también deberían dar 3 estrellas al jugador lento (0,9 s de reacción).
+## Pausa y botón atrás
+- En el nivel, el botón "Pausa" congela todo (tiempo, clientes, personaje) y abre Continuar / Repetir / Salir
+- Botón atrás de Android (Escape en el ordenador): pantalla anterior; en el nivel abre la pausa y en la pausa sigue; en el inicio y el mapa sale del juego
+- Si la app pasa a segundo plano (llamada, botón de inicio, pantalla apagada) el nivel se pausa
 ## Desbloqueo de zonas
 Las zonas se abren en el orden de data/venues.json. Cada una pide un 75% de la suma de estrellas de todas las anteriores
 (VenueCatalog.UNLOCK_RATIO). El mapa muestra arriba las estrellas totales y en cada zona cerrada cuántas hacen falta.
