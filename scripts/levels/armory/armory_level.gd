@@ -6,7 +6,7 @@ extends ServiceLevel
 # Si quieren reparar, el herrero recoge el objeto roto, lo lleva al yunque,
 # lo recoge arreglado y se lo devuelve. Cobra según los precios del escenario.
 
-const COUNTER_ROWS := {2: [140, 260], 3: [110, 200, 290]}
+const COUNTER_ROWS := {2: [140, 260], 3: [110, 200, 290], 4: [75, 155, 235, 315]}
 const COUNTER_X := 252.0
 const RACK_X := 590.0
 const RACK_ROWS := [95, 185, 275]

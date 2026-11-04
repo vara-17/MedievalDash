@@ -3,11 +3,16 @@ extends RefCounted
 
 # Escenarios del juego (taberna, armería...) leídos de data/venues.json.
 # Cada uno tiene su "gameplay" (qué subclase de Level se juega) y sus niveles.
+# Se desbloquean en orden: cada escenario pide un 75% de todas las estrellas
+# de los anteriores.
 
 const PATH := "res://data/venues.json"
+# Parte de las estrellas de los escenarios anteriores que hace falta para abrir uno.
+const UNLOCK_RATIO := 0.75
+const STARS_PER_LEVEL := 3
 const DEFAULT_VENUE := {
 	"id": "taberna", "name": "Taberna", "goal": "", "gameplay": "tavern",
-	"icon": "mug", "roof": "R", "map_pos": [320, 200], "requires": "",
+	"icon": "mug", "roof": "R", "map_pos": [320, 200],
 	"levels": [{
 		"name": "Nivel de prueba", "time": 60, "tables": 3,
 		"queue_patience": 25, "table_patience": 20,
@@ -27,12 +32,26 @@ static func load_all() -> Array:
 	return [DEFAULT_VENUE]
 
 
-# Un escenario está disponible si no pide nada o si el que pide está completo.
+# Estrellas máximas de los escenarios [from, to).
+static func max_stars(venues: Array, from: int, to: int) -> int:
+	var total := 0
+	for i in range(from, to):
+		total += venues[i]["levels"].size() * STARS_PER_LEVEL
+	return total
+
+
+# Estrellas conseguidas en los escenarios [from, to).
+static func earned_stars(venues: Array, from: int, to: int, save: SaveData) -> int:
+	var total := 0
+	for i in range(from, to):
+		total += save.total_stars(str(venues[i]["id"]))
+	return total
+
+
+# Estrellas necesarias para abrir el escenario "index".
+static func stars_needed(venues: Array, index: int) -> int:
+	return ceili(max_stars(venues, 0, index) * UNLOCK_RATIO)
+
+
 static func is_unlocked(venues: Array, index: int, save: SaveData) -> bool:
-	var requires := str(venues[index].get("requires", ""))
-	if requires == "":
-		return true
-	for v in venues:
-		if v["id"] == requires:
-			return save.is_venue_complete(requires, v["levels"].size())
-	return false
+	return earned_stars(venues, 0, index, save) >= stars_needed(venues, index)

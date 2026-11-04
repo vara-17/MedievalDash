@@ -4,8 +4,12 @@ extends ServiceLevel
 # Nivel de taberna: los clientes se sientan a una mesa, el tabernero les toma
 # nota, recoge la bebida en la barra, se la sirve y les cobra.
 
-const TABLE_ROWS := {2: [120, 240], 3: [80, 180, 280]}
-const TABLE_X := 260.0
+# Posición de las mesas según cuántas hay.
+const TABLE_LAYOUTS := {
+	2: [Vector2(260, 120), Vector2(260, 240)],
+	3: [Vector2(260, 80), Vector2(260, 180), Vector2(260, 280)],
+	4: [Vector2(230, 110), Vector2(230, 250), Vector2(400, 110), Vector2(400, 250)],
+}
 const KITCHEN_POS := Vector2(570, 180)
 const PAYMENT := 10
 
@@ -24,9 +28,9 @@ func _create_stations() -> void:
 
 func _create_spots() -> Array[Spot]:
 	var result: Array[Spot] = []
-	for y in TABLE_ROWS.get(int(config["tables"]), TABLE_ROWS[3]):
+	for pos in TABLE_LAYOUTS.get(int(config["tables"]), TABLE_LAYOUTS[3]):
 		var t := Table.new()
-		t.position = Vector2(TABLE_X, y)
+		t.position = pos
 		result.append(t)
 	return result
 

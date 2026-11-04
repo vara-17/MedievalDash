@@ -10,8 +10,8 @@ signal left(who: ServiceCustomer, paid: bool)
 enum State { QUEUED, WALKING, AT_SPOT }
 
 const SPEED := 120.0
-const HINT_POS := Vector2(-50, 30)
-const HINT_WIDTH := 100.0
+const HINT_POS := Vector2(-60, 30)
+const HINT_WIDTH := 120.0
 const PATIENCE_BAR := Rect2(-17, -31, 34, 7)
 # Dónde se pinta la segunda persona de un grupo de 2, detrás de la primera.
 const PARTNER_OFFSET := Vector2(10, -6)

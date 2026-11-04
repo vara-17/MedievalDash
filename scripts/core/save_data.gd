@@ -75,14 +75,6 @@ func total_stars(venue: String) -> int:
 	return total
 
 
-# Un escenario está completo cuando todos sus niveles tienen al menos una estrella.
-func is_venue_complete(venue: String, level_count: int) -> bool:
-	for i in level_count:
-		if get_stars(venue, i) == 0:
-			return false
-	return level_count > 0
-
-
 func record(venue: String, index: int, stars: int) -> void:
 	var list: Array = progress.get(venue, [])
 	while list.size() <= index:

@@ -2,7 +2,8 @@ class_name MapScreen
 extends Node2D
 
 # Mapa del reino: un edificio por escenario (taberna, armería...), unidos por un
-# camino. Cada escenario se desbloquea al completar el que pide en "requires".
+# camino. Cada escenario se desbloquea con un 75% de las estrellas de todos los
+# anteriores (VenueCatalog). Arriba, las estrellas conseguidas en total.
 # Al tocar un escenario disponible emite venue_pressed con su índice.
 # Arriba a la derecha muestra quién juega y el botón de sesión (account_pressed).
 
@@ -10,6 +11,7 @@ signal venue_pressed(index: int)
 signal account_pressed
 
 const TOP_BAR_HEIGHT := 40.0
+const TOTAL_STAR_POS := Vector2(196, 20)
 const BTN_ACCOUNT := Rect2(470, 6, 160, 28)
 const CARD_SIZE := Vector2(130, 46)
 const CARD_OFFSET := Vector2(-65, 30)
@@ -105,6 +107,9 @@ func _draw_top_bar(width: float) -> void:
 	draw_rect(Rect2(0, 0, width, TOP_BAR_HEIGHT), palette["D"])
 	draw_rect(Rect2(0, TOP_BAR_HEIGHT - 3, width, 3), palette["K"])
 	draw_string(font, Vector2(14, 27), "Mapa del reino", HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.MEDIUM, palette["Y"])
+	UiDraw.small_star(self, TOTAL_STAR_POS, true)
+	var total := "%d/%d" % [VenueCatalog.earned_stars(venues, 0, venues.size(), save), VenueCatalog.max_stars(venues, 0, venues.size())]
+	UiDraw.text(self, TOTAL_STAR_POS + Vector2(12, 7), total, UiDraw.MEDIUM, palette["W"])
 	_draw_account(font)
 
 
@@ -152,17 +157,16 @@ func _draw_venue(index: int) -> void:
 	draw_rect(card.grow(-2), palette["L"] * tint)
 	draw_string(font, card.position + Vector2(0, 21), str(venue["name"]), HORIZONTAL_ALIGNMENT_CENTER, card.size.x, UiDraw.MEDIUM, palette["K"])
 	var level_count: int = venue["levels"].size()
-	var status := ""
-	if not unlocked:
-		status = "Bloqueado"
-	elif level_count == 0:
-		status = "Próximamente"
-	if status != "":
-		draw_string(font, card.position + Vector2(0, 37), status, HORIZONTAL_ALIGNMENT_CENTER, card.size.x, UiDraw.SMALL, palette["D"])
+	if unlocked and level_count == 0:
+		draw_string(font, card.position + Vector2(0, 37), "Próximamente", HORIZONTAL_ALIGNMENT_CENTER, card.size.x, UiDraw.SMALL, palette["D"])
 		return
-	var center := card.position + Vector2(card.size.x / 2.0 - 16, 33)
-	UiDraw.small_star(self, center, true)
-	var stars := "%d/%d" % [save.total_stars(str(venue["id"])), level_count * 3]
+	# Abierto: estrellas del escenario. Cerrado: estrellas que hacen falta en total.
+	var stars := "%d/%d" % [save.total_stars(str(venue["id"])), level_count * VenueCatalog.STARS_PER_LEVEL]
+	if not unlocked:
+		stars = "Necesitas %d" % VenueCatalog.stars_needed(venues, index)
+	var text_w := font.get_string_size(stars, HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.SMALL).x
+	var center := card.position + Vector2((card.size.x - text_w - 14) / 2.0 + 6, 33)
+	UiDraw.small_star(self, center, unlocked)
 	draw_string(font, center + Vector2(12, 4), stars, HORIZONTAL_ALIGNMENT_LEFT, -1, UiDraw.SMALL, palette["K"])
 
 

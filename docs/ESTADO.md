@@ -9,11 +9,10 @@
 - Fuente pixel art Pixelify Sans
 - Interfaz de madera y pergamino (UiDraw): marcador con monedas, barra hacia las estrellas y reloj; estrellas, candado, puerta, barra y barril con sprite
 - Código ordenado por carpetas (core, online, art, ui, screens, levels); taberna y armería sobre una base común (ServiceLevel, ServiceCustomer, Spot, Staff)
-- Escenarios en data/venues.json (taberna, armería, posada y enfermería jugables, 3 niveles cada una); progreso guardado por escenario
+- Escenarios en data/venues.json (taberna, armería, posada y enfermería jugables, 7 niveles cada una de fácil a extremo); progreso guardado por escenario
 ## Siguiente
 - Posada: niveles con grupos de 2 y camas dobles
 - Más variedad de clientes (humano, enano, elfo) y 2 frames de animación
-- Ajustar dificultad y estrellas de la armería tras probarla
 - Propinas por rapidez
 ## Bugs conocidos
 - Ninguno
