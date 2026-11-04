@@ -43,6 +43,12 @@ func work(seconds: float, on_done: Callable) -> void:
 	work_done = on_done
 
 
+# Quita todas las acciones pendientes; se queda donde está. Lo que esté
+# haciendo en el sitio (hacer una cama) lo termina.
+func clear_actions() -> void:
+	actions.clear()
+
+
 # Quita las acciones que se refieren a "about" (p. ej. un cliente que se ha ido).
 func cancel_actions_about(about: Object) -> void:
 	actions = actions.filter(func(a: Dictionary) -> bool: return a["about"] != about)

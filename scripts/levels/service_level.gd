@@ -15,6 +15,8 @@ const DOOR_CENTER := Vector2(16, 180)
 const QUEUE_SLOTS := [Vector2(60, 110), Vector2(60, 180), Vector2(60, 250)]
 const STAFF_START := Vector2(120, 180)
 const TAP_RADIUS := 30.0
+# Botón del marcador para cancelar todas las acciones pendientes.
+const BTN_CANCEL := Rect2(375, 6, 110, 28)
 # Separación de tono entre clientes seguidos, para que cada uno tenga su color.
 const HUE_STEP := 0.618
 
@@ -102,6 +104,10 @@ func _on_customer_left(c: ServiceCustomer, paid: bool) -> void:
 
 
 func _on_tap(p: Vector2) -> void:
+	if BTN_CANCEL.has_point(p):
+		staff.clear_actions()
+		_deselect()
+		return
 	if _tap_station(p):
 		return
 	for c in queue:
@@ -156,6 +162,8 @@ func _send_selected_to(s: Spot) -> void:
 
 func _draw_scene() -> void:
 	UiDraw.sprite(self, SpriteFactory.make("door"), DOOR_CENTER)
+	if running:
+		UiDraw.wood_button(self, BTN_CANCEL, "Cancelar")
 	if running and selected != null:
 		for s in spots:
 			if s.accepts(selected):

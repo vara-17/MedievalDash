@@ -3,6 +3,8 @@
 Cada toque añade una acción a una cola FIFO (máximo 6), con un marcador numerado en el suelo.
 Al llegar a cada punto, si hay algo que hacer y se puede, lo hace; si no, pasa a la siguiente.
 Si un cliente se va, se quitan las acciones que eran para él.
+El botón "Cancelar" del marcador borra todas las acciones pendientes (y la selección de cliente): el personaje se
+queda donde está y el siguiente toque vuelve a ser la acción 1. Lo que ya está haciendo en el sitio (hacer una cama) lo termina.
 ## Taberna: ciclo de un cliente
 Llega > espera sitio > se sienta > pide > espera plato > come > paga > se va
 ## Armería: ciclo de un cliente
